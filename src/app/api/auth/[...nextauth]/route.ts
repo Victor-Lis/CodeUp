@@ -1,3 +1,4 @@
+import { AuthService } from "@/_services/auth";
 import { prisma } from "@/lib/prisma";
 import NextAuth from "next-auth";
 
@@ -13,17 +14,10 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials?.username,
-            password: credentials?.password,
-          },
+        const user = await AuthService.signIn({
+          credential: credentials?.username,
+          password: credentials?.password,
         });
-
-        if (!user) {
-          throw new Error("User not found");
-        }
-
         return { ...user };
       },
     }),
@@ -35,7 +29,7 @@ const handler = NextAuth({
   ],
   callbacks: {
     session({ session }) {
-      return session; 
+      return session;
     },
   },
 });

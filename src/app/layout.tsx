@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Nunito } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
-import AuthProvider from "@/providers/_auth";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+import AuthWrapper from "@/providers/_auth";
+import TanstackQueryWrapper from "@/providers/tanstack-query";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { cn } from "@/lib/utils";
+
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
 });
@@ -21,8 +27,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${nunito.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+      <body className={cn(poppins.className, "dark")}>
+        <AuthWrapper>
+          <TanstackQueryWrapper>
+            {children}
+            <ToastContainer
+              position="bottom-right"
+              autoClose={2500}
+              theme="colored"
+            />
+          </TanstackQueryWrapper>
+        </AuthWrapper>
       </body>
     </html>
   );
