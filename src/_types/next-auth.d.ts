@@ -6,8 +6,30 @@ declare module "next-auth" {
    */
   interface Session {
     user: {
-      /** The user's postal address. */
-      // address: string;
-    } & DefaultSession["user"];
+      id: string;
+      name?: string;
+      email: string;
+      emailVerified: string | null;
+      password: string;
+      image: string | null;
+    };
+    expires: "2025-07-31T01:33:19.618Z";
+    token: {
+      name: string | null;
+      email: string | null;
+      picture: string | null;
+      sub: string | null;
+      user: {
+        id: string | null;
+        name: string | null;
+        email: string | null;
+        emailVerified: string | null;
+        password: string | null;
+        image: string | null;
+      };
+      iat: number;
+      exp: number;
+      jti: string;
+    };
   }
 }

@@ -13,7 +13,7 @@ export class AuthService {
       },
     });
     
-    return { ...user };
+    return { ...user } as UserType;
   }
 
   static async signIn(credentials: { credential: string; password: string }) {
@@ -34,6 +34,6 @@ export class AuthService {
       throw new Error("Invalid credentials");
     }
 
-    return { ...user };
+    return { ...user } as UserType;
   }
 }

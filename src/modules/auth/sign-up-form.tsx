@@ -90,9 +90,9 @@ export function SignUpForm() {
           )}
         />
 
-        {error && (
+        {error?.message.includes("500") && (
           <p className="text-sm font-medium text-destructive">
-            {error.message}
+            Ocorreu um erro ao cadastrar o usuário. Já existe um usuário com este nome de usuário ou email!
           </p>
         )}
 

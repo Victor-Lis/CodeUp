@@ -5,7 +5,7 @@ import { SignUpForm } from "./sign-up-form";
 export function AuthModule() {
   return (
     <div className="flex w-full max-w-sm flex-col gap-6">
-      <Tabs defaultValue="sign-up">
+      <Tabs defaultValue="sign-in">
         <h2 className="text-2xl font-bold text-center mb-2">Bem-vindo ao CodeUp</h2>
         <TabsList className="mb-4 w-full">
           <TabsTrigger value="sign-in">Login</TabsTrigger>
