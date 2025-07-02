@@ -1,9 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 
+type SignUpProps = {
+  name: string;
+  credential: string;
+  password: string;
+}
+
 export function useSignUp() {
   return useMutation({
-    mutationFn: async (data: { credential: string; password: string }) => {
+    mutationFn: async (data: SignUpProps) => {
       const user = await axios.post("/api/auth/signup", data);
 
       if (!user) {

@@ -21,6 +21,9 @@ import { useSignUp } from "@/hooks/use-auth";
 import { toast } from "react-toastify";
 
 const formSchema = z.object({
+  name: z.string().min(1, {
+    message: "O nome é obrigatório.",
+  }),
   credential: z.string().min(1, {
     message: "O nome de usuário é obrigatório.",
   }),
@@ -37,6 +40,7 @@ export function SignUpForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       credential: "",
       password: "",
     },
@@ -50,7 +54,8 @@ export function SignUpForm() {
       {
         onSuccess: () => {
           toast.success("Usuário cadastrado com sucesso!");
-          router.push("/login")
+          router.push("/login");
+          router.refresh();
         },
       }
     );
@@ -62,6 +67,20 @@ export function SignUpForm() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-6 w-full max-w-sm"
       >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome</FormLabel>
+              <FormControl>
+                <Input placeholder="Seu Nome" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="credential"
