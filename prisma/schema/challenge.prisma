@@ -1,0 +1,12 @@
+model Challenge {
+  id         Int      @id @default(autoincrement())
+  
+  fileUrl       String   
+  bucketPath    String
+
+  createdAt     DateTime @default(now())
+
+  runs         Run[]
+
+  @@map("challenges")
+}

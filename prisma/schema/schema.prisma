@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -38,6 +38,15 @@ model Session {
   @@map("sessions")
 }
  
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -47,15 +56,15 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  
+  role          UserRole  @default(USER)
+
+  runs          Run[]
  
   @@map("users")
 }
- 
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
- 
-  @@unique([identifier, token])
-  @@map("verification_tokens")
+
+enum UserRole {
+  USER
+  ADMIN
 }

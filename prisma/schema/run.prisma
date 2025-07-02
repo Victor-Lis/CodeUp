@@ -1,0 +1,18 @@
+model Run {
+  id Int @id @default(autoincrement())
+
+  approved Boolean @default(false)
+
+  content String @db.VarChar(10000)
+
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  challengeId Int
+
+  user        User @relation(fields: [userId], references: [id])
+  userId     String
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("runs")
+}

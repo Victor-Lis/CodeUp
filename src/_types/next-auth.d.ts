@@ -12,8 +12,9 @@ declare module "next-auth" {
       emailVerified: string | null;
       password: string;
       image: string | null;
+      role: "USER" | "ADMIN";
     };
-    expires: "2025-07-31T01:33:19.618Z";
+    expires: Date;
     token: {
       name: string | null;
       email: string | null;
@@ -26,6 +27,7 @@ declare module "next-auth" {
         emailVerified: string | null;
         password: string | null;
         image: string | null;
+        role: "USER" | "ADMIN";
       };
       iat: number;
       exp: number;
