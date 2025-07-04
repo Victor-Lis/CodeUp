@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 
 import fileUploadHandler from "@/lib/firebase/file";
 import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 // import fileUploadHandler from "@/lib/firebase/file";
 
 const runFormSchema = z.object({
@@ -64,7 +65,12 @@ export default function SubmissionForm({
         challengeId: challengeId,
       });
     }
-    alert(`Submissão para o Desafio #${challengeId} enviada!\n`);
+    toast.success(`Submissão para o Desafio #${challengeId} enviada!\n`, {
+      autoClose: 5000,
+    });
+    toast.info("Clique em validar para verificar se a submissão está correta!", {
+      autoClose: 10000,
+    });
     form.reset();
   }
 

@@ -47,7 +47,7 @@ export default function RunStatus({
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Validar novamente"
+                "Validar"
               )}
             </Button>
           </div>
