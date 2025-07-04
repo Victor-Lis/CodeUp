@@ -126,9 +126,12 @@ export default function AdminChallengesPage() {
 
   // Hooks de dados (usando mock por enquanto)
   // const { data: challenges, isLoading } = useGetChallenges({});
-  const challenges = MOCK_CHALLENGES;
-  const isLoading = false;
+  // const challenges = MOCK_CHALLENGES;
+  const { data: challenges, isLoading } = useGetChallenges()
 
+  challenges?.map((challenge) => {
+    console.log(`ID: ${challenge.id}, Runs: ${challenge.runs}`);
+  })
   // Hooks de mutação (simulados)
   // const createChallenge = useCreateChallenge();
   // const updateChallenge = useUpdateChallenge();
@@ -217,7 +220,7 @@ export default function AdminChallengesPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead>Título</TableHead>
+                <TableHead>Arquivo</TableHead>
                 <TableHead className="w-[150px]">Criado em</TableHead>
                 <TableHead className="w-[150px] text-center">
                   Submissões
@@ -229,7 +232,16 @@ export default function AdminChallengesPage() {
               {challenges?.map((challenge) => (
                 <TableRow key={challenge.id}>
                   <TableCell className="font-medium">{challenge.id}</TableCell>
-                  <TableCell>{challenge.title}</TableCell>
+                  <TableCell>
+                    <a
+                      href={challenge.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      Ver Desafio
+                    </a>
+                  </TableCell>
                   <TableCell>
                     {format(challenge.createdAt, "dd/MM/yyyy")}
                   </TableCell>
@@ -245,7 +257,8 @@ export default function AdminChallengesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(challenge)}>
+                        {/* <DropdownMenuItem onClick={() => handleEdit(challenge)}> */}
+                        <DropdownMenuItem onClick={() => {}}>
                           <Pencil className="mr-2 h-4 w-4" />
                           <span>Editar</span>
                         </DropdownMenuItem>
@@ -253,7 +266,7 @@ export default function AdminChallengesPage() {
                           onClick={() => handleDelete(challenge.id)}
                           className="text-red-400"
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
+                          <Trash2 className="mr-2 h-4 w-4 text-red-400" />
                           <span>Deletar</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -267,7 +280,7 @@ export default function AdminChallengesPage() {
       </div>
 
       {/* Modal de Formulário (Criar/Editar) */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+      {/* <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
@@ -324,10 +337,10 @@ export default function AdminChallengesPage() {
             </form>
           </Form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* Modal de Confirmação (Deletar) */}
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+      {/* <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Você tem certeza absoluta?</AlertDialogTitle>
@@ -346,7 +359,7 @@ export default function AdminChallengesPage() {
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </>
   );
 }

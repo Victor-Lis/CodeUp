@@ -15,12 +15,9 @@ export class ChallengeService {
 
     return challenges.map((challenge) => {
       const run = challenge.runs.find((r) => r.userId === userId) || null;
-      const otherRuns = challenge.runs.filter((r) => r.userId !== userId);
-
       return {
         ...challenge,
         run,
-        runs: otherRuns,
       };
     });
   }
