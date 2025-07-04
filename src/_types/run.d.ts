@@ -3,7 +3,7 @@ interface RunType {
 
   approved: boolean;
 
-  content: string;
+  fileUrl: string;
 
   challengeId: number;
   userId: string;
@@ -13,7 +13,7 @@ interface RunType {
 }
 
 interface CreateRunType {
-  content: string;
+  fileUrl: string;
   challengeId: number;
   userId: string;
 }

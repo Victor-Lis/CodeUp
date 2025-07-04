@@ -1,12 +1,12 @@
 model Challenge {
-  id         Int      @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   
-  fileUrl       String   
-  bucketPath    String
+  fileUrl    String
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  runs         Run[]
+  runs      Run[]
+  testCases TestCase[] // Adicione esta linha para a relação
 
   @@map("challenges")
 }

@@ -19,15 +19,21 @@ export class RunService {
   static async getRunById(id: number) {
     const run = await prisma.run.findUnique({
       where: { id },
-      include: { user: true }
+      include: { challenge: { include: { testCases: true } } }
     });
+    console.log(run?.challenge?.testCases);
     return run;
   }
 
   static async updateRun(id: number, data: Partial<RunType>) {
     const run = await prisma.run.update({
       where: { id },
-      data
+      data: {
+        approved: data.approved,
+        fileUrl: data.fileUrl,
+      }
+    }).catch((error) => {
+      console.error("Error updating run:", error);
     });
     return run;
   }

@@ -26,16 +26,16 @@ export async function middleware(req: NextRequest) {
 
   const token = (await getToken({ req })) as Token | null;
 
-  if (!token) {
-    // console.log("No token found, redirecting to login");
+  if (!token && !publicRoutes.includes(pathname)) {
+    console.log("No token found, redirecting to login");
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
   }
 
   const user = token?.user;
-  // console.log("User found:", user);
+  console.log("User found:", user);
 
-  if (adminRoutes.includes(pathname) && user.role !== "ADMIN") {
-    // console.log("User is not admin, redirecting to dashboard");
+  if (adminRoutes.includes(pathname) && user?.role !== "ADMIN") {
+    console.log("User is not admin, redirecting to dashboard");
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
   }
 

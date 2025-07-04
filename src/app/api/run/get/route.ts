@@ -4,10 +4,10 @@ import { getServerSession } from "next-auth";
 
 export async function GET(request: Request) {
   try {
-    const user = await getServerSession();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // const user = await getServerSession();
+    // if (!user) {
+    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // }
 
     const url = new URL(request.url);
     const id = parseInt(url.searchParams.get("id") || "", 10);

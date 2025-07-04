@@ -13,11 +13,11 @@ export async function POST(request: Request) {
     const user = await AuthService.getUserByCredential(userSession.user.email);
 
     const body = await request.json();
-    const { challengeId, content } = body;
+    const { challengeId, fileUrl } = body;
 
     const run = await RunService.createRun({
       challengeId,
-      content,
+      fileUrl,
       userId: user.id,
     });
 

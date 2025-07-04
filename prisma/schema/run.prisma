@@ -3,8 +3,6 @@ model Run {
 
   approved Boolean @default(false)
 
-  content String @db.VarChar(10000)
-
   challenge   Challenge @relation(fields: [challengeId], references: [id])
   challengeId Int
 
@@ -13,6 +11,8 @@ model Run {
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+
+  fileUrl    String
 
   @@map("runs")
 }

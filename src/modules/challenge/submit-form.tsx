@@ -3,10 +3,8 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 
 import { z } from "zod";
@@ -15,11 +13,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useCreateRun } from "@/hooks/use-run/create";
 import { useUpdateRun } from "@/hooks/use-run/update";
+import { Input } from "@/components/ui/input";
+
+import fileUploadHandler from "@/lib/firebase/file";
+import { useSession } from "next-auth/react";
+// import fileUploadHandler from "@/lib/firebase/file";
 
 const runFormSchema = z.object({
-  content: z.string().min(1, {
-    message: "A submissão deve ter pelo menos 10 caracteres.",
-  }),
+  file: z.instanceof(File),
 });
 
 export default function SubmissionForm({
@@ -32,31 +33,47 @@ export default function SubmissionForm({
   const form = useForm<z.infer<typeof runFormSchema>>({
     resolver: zodResolver(runFormSchema),
     defaultValues: {
-      content: run?.content || "",
+      file: new File([""], "", { type: "text/x-python" }),
     },
   });
 
-  const { mutate: create } = useCreateRun();
-  const { mutate: update } = useUpdateRun();
+  const session = useSession();
 
-  function onSubmit(values: z.infer<typeof runFormSchema>) {
+  const { mutate: create, isPending: isCreating } = useCreateRun();
+  const { mutate: update, isPending: isUpdating } = useUpdateRun();
+
+  async function onSubmit(values: z.infer<typeof runFormSchema>) {
+    const file = values.file;
+
+    const downloadURL = await fileUploadHandler(
+      file,
+      `challenges/${challengeId}/runs/`,
+      session.data?.user?.id || "anonymous",
+    );
+
     if (run && run.id) {
       update({
         id: run.id,
         data: {
-          content: values.content,
+          fileUrl: downloadURL,
         },
       });
     } else {
       create({
-        content: values.content,
+        fileUrl: downloadURL,
         challengeId: challengeId,
       });
     }
-    alert(
-      `Submissão para o Desafio #${challengeId} enviada!\nConteúdo: ${values.content}`
-    );
+    alert(`Submissão para o Desafio #${challengeId} enviada!\n`);
     form.reset();
+  }
+
+  if (session.status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (session.status === "unauthenticated") {
+    return <div>Você precisa estar logado para submeter uma run.</div>;
   }
 
   return (
@@ -64,26 +81,32 @@ export default function SubmissionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="content"
+          name="file"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="font-semibold">
+              {/* <FormLabel className="font-semibold">
                 Textarea para submissão de runs
-              </FormLabel>
+              </FormLabel> */}
               <FormControl>
-                <Textarea
-                  placeholder="Cole aqui o conteúdo da sua 'run' para submissão..."
-                  className="resize-y min-h-[120px]"
-                  {...field}
+                <Input
+                  id="file"
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    field.onChange(file);
+                  }}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="cursor-pointer">
+        <Button type="submit" className="cursor-pointer" disabled={isCreating || isUpdating}>
           <Send className="mr-2 h-4 w-4" />
-          Enviar Submissão
+          {isCreating || isUpdating ? "Enviando..." : "Enviar Submissão"}
         </Button>
       </form>
     </Form>
