@@ -1,0 +1,35 @@
+import { Badge } from "@/components/ui/badge";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
+import UpdateChallengeDialog from "../update/dialog";
+import DeleteChallengeDialog from "../delete/dialog";
+
+export default function ChallengeTableRow({
+  challenge,
+}: {
+  challenge: ChallengeType;
+}) {
+  return (
+    <TableRow key={challenge.id}>
+      <TableCell className="font-medium">{challenge.id}</TableCell>
+      <TableCell>
+        <a
+          href={challenge.fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline"
+        >
+          Ver Desafio
+        </a>
+      </TableCell>
+      <TableCell>{format(challenge.createdAt, "dd/MM/yyyy")}</TableCell>
+      <TableCell className="text-center">
+        <Badge variant="secondary">{challenge.runs.length}</Badge>
+      </TableCell>
+      <TableCell className="flex items-center justify-end py-3 gap-3">
+        <UpdateChallengeDialog />
+        {challenge.runs.length > 0 ? null : <DeleteChallengeDialog />}
+      </TableCell>
+    </TableRow>
+  );
+}

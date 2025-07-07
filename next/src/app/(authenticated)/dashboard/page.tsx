@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useGetChallenges } from "@/hooks/use-challenge/get-all";
 
 import { Loader2 } from "lucide-react";
-import ChallengeCard from "@/modules/challenge/card";
+import ChallengeCard from "@/modules/dashboard/challenge/card";
 
 export default function ChallengesPage() {
   const { data: session } = useSession();
