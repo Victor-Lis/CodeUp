@@ -8,19 +8,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useDeleteChallenge } from "@/hooks/use-challenge/delete";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function DeleteChallengeDialog() {
+export default function DeleteChallengeDialog({
+  challenge,
+}: {
+  challenge: ChallengeType;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const { mutate: deleteChallenge } = useDeleteChallenge();
 
   const handleConfirmDelete = () => {
-    // Implement the logic to delete the challenge here
-  }
+    deleteChallenge(challenge.id);
+    setOpen(false);
+  };
 
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Trash2 className="h-5 w-5 text-red-400 cursor-pointer" />
       </AlertDialogTrigger>

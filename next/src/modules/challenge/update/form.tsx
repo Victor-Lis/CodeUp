@@ -1,80 +1,102 @@
 import {
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog";
-import {
   Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
+import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const challengeFormSchema = z.object({
-  title: z.string().min(5, "O título precisa ter no mínimo 5 caracteres."),
-  fileUrl: z.string().url("Por favor, insira uma URL válida."),
+import fileUploadHandler from "@/lib/firebase/file";
+import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import InputFile from "@/components/form/input-file";
+import { useUpdateChallenge } from "@/hooks/use-challenge/update";
+
+const runFormSchema = z.object({
+  file: z.instanceof(File),
 });
 
-export default function CreateChallengeForm() {
-  const form = useForm({
-    resolver: zodResolver(challengeFormSchema),
+type UpdateChallengeFormProps = {
+  challenge: ChallengeType;
+  onSuccess?: () => void;
+};
+
+export default function UpdateChallengeForm({
+  challenge,
+  onSuccess,
+}: UpdateChallengeFormProps) {
+  const form = useForm<z.infer<typeof runFormSchema>>({
+    resolver: zodResolver(runFormSchema),
     defaultValues: {
-      title: "",
-      fileUrl: "",
+      file: new File([""], "", { type: "text/x-python" }),
     },
   });
 
-  const onSubmit = (values: z.infer<typeof challengeFormSchema>) => {
-    console.log("Submitting form:", values);
-  };
+  const session = useSession();
+
+  const { mutate: update, isPending: isCreating } = useUpdateChallenge();
+
+  async function onSubmit(values: z.infer<typeof runFormSchema>) {
+    const file = values.file;
+
+    const downloadURL = await fileUploadHandler(
+      file,
+      `challenges/${challenge.id}/`,
+      `challenge-${challenge.id}` || "anonymous"
+    );
+
+    update(
+      {
+        id: challenge.id,
+        data: {
+          fileUrl: downloadURL,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success(`Desafio #${challenge.id} atualizado!\n`, {
+            autoClose: 5000,
+          });
+          onSuccess?.();
+        },
+        onError: (error) => {
+          console.error("Erro ao criar submissão:", error);
+          toast.error("Erro ao criar submissão. Tente novamente.");
+        },
+      }
+    );
+    form.reset();
+  }
+
+  if (session.status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  if (session.status === "unauthenticated") {
+    return <div>Você precisa estar logado para submeter uma run.</div>;
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-        <FormField
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <InputFile
           control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Título do Desafio</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Ex: Análise de Dados Financeiros"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          name="file"
+          accept=".pdf"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            form.setValue(
+              "file",
+              file || new File([""], "", { type: "text/x-python" })
+            );
+          }}
         />
-        <FormField
-          control={form.control}
-          name="fileUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>URL do Arquivo PDF</FormLabel>
-              <FormControl>
-                <Input placeholder="https://..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Cancelar
-            </Button>
-          </DialogClose>
-          <Button type="submit">Salvar</Button>
-        </DialogFooter>
+        <Button type="submit" className="cursor-pointer" disabled={isCreating}>
+          <Send className="mr-2 h-4 w-4" />
+          {isCreating ? "Atualizando..." : "Atualizar Submissão"}
+        </Button>
       </form>
     </Form>
   );

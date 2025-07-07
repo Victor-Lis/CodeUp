@@ -1,23 +1,29 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { ChallengeService } from "@/_services/challenge";
-import { getServerSession } from 'next-auth';
+import { getServerSession } from "next-auth";
 
 export async function PUT(request: Request) {
   try {
     const user = await getServerSession();
     if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const url = new URL(request.url);
+    const id = parseInt(url.searchParams.get("id") || "", 10);
+
+    const body = await request.json();
+    const { fileUrl } = body;
+
+    if (!id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
+        { error: "Missing required fields [id]" },
+        { status: 400 }
       );
     }
 
-    const body = await request.json();
-    const { id, fileUrl, bucketPath } = body;
-
     const challenge = await ChallengeService.updateChallenge(id, {
       fileUrl,
-      bucketPath
     });
 
     return NextResponse.json(

@@ -27,8 +27,8 @@ export default function ChallengeTableRow({
         <Badge variant="secondary">{challenge.runs.length}</Badge>
       </TableCell>
       <TableCell className="flex items-center justify-end py-3 gap-3">
-        <UpdateChallengeDialog />
-        {challenge.runs.length > 0 ? null : <DeleteChallengeDialog />}
+        <UpdateChallengeDialog challenge={challenge} />
+        {challenge.runs.length > 0 ? null : <DeleteChallengeDialog challenge={challenge} />}
       </TableCell>
     </TableRow>
   );

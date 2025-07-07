@@ -12,7 +12,6 @@ interface ChallengeType {
 
 interface CreateChallengeType {
   fileUrl: string;
-  bucketPath: string;
 }
 
 // model Challenge {

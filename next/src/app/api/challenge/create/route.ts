@@ -10,11 +10,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { fileUrl, bucketPath } = body;
+    const { fileUrl } = body;
 
     const challenge = await ChallengeService.createChallenge({
       fileUrl,
-      bucketPath,
     });
 
     return NextResponse.json(

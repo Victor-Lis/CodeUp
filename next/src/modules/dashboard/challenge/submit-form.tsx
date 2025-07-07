@@ -1,9 +1,5 @@
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
+  Form
 } from "@/components/ui/form";
 import { Send } from "lucide-react";
 
@@ -13,11 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useCreateRun } from "@/hooks/use-run/create";
 import { useUpdateRun } from "@/hooks/use-run/update";
-import { Input } from "@/components/ui/input";
 
 import fileUploadHandler from "@/lib/firebase/file";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import InputFile from "@/components/form/input-file";
 // import fileUploadHandler from "@/lib/firebase/file";
 
 const runFormSchema = z.object({
@@ -85,30 +81,14 @@ export default function SubmissionForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+        <InputFile
           control={form.control}
           name="file"
-          render={({ field }) => (
-            <FormItem>
-              {/* <FormLabel className="font-semibold">
-                Textarea para submissão de runs
-              </FormLabel> */}
-              <FormControl>
-                <Input
-                  id="file"
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    field.onChange(file);
-                  }}
-                  onBlur={field.onBlur}
-                  name={field.name}
-                  ref={field.ref}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          accept=".py"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            form.setValue("file", file || new File([""], "", { type: "text/x-python" }));
+          }}
         />
         <Button type="submit" className="cursor-pointer" disabled={isCreating || isUpdating}>
           <Send className="mr-2 h-4 w-4" />
