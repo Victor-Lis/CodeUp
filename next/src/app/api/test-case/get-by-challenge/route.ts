@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { ChallengeService } from "@/_services/challenge";
 import { getServerSession } from "next-auth";
-import { AuthService } from "@/_services/auth";
+import { TestCaseService } from "@/_services/test-case";
 
 export async function GET(request: Request) {
   try {
@@ -15,13 +14,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const challenges = await ChallengeService.getChallenges(userSession.token.user.email);
+    const url = new URL(request.url);
+    const id = parseInt(url.searchParams.get("id") || "", 10);
 
-    if (!challenges) {
-      return NextResponse.json({ error: "No challenges found" }, { status: 404 });
+    const testCases = await TestCaseService.getTestCasesByChallengeId(id);
+
+    if (!testCases) {
+      return NextResponse.json(
+        { error: "No test cases found" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(challenges, { status: 200 });
+    return NextResponse.json(testCases, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       { error: "An error occurred during challenge retrieval" },
