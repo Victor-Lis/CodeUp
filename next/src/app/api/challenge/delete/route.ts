@@ -1,15 +1,12 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { ChallengeService } from "@/_services/challenge";
-import { getServerSession } from 'next-auth';
+import { getServerSession } from "next-auth";
 
 export async function DELETE(request: Request) {
   try {
-    const user = await getServerSession();
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    const session = await getServerSession();
+    if (!session?.token.user.role || session.token.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();

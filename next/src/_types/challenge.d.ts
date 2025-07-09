@@ -8,6 +8,8 @@ interface ChallengeType {
 
   run: RunType | null;
   runs: RunType[];
+
+  testCases: TestCaseType[];
 }
 
 interface CreateChallengeType {

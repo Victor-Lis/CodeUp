@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { ChallengeService } from "@/_services/challenge";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function PUT(request: Request) {
   try {
-    const user = await getServerSession();
-    if (!user) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.token.user.role || session.token.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

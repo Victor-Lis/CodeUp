@@ -4,8 +4,8 @@ import { getServerSession } from 'next-auth';
 
 export async function DELETE(request: Request) {
   try {
-    const user = await getServerSession();
-    if (!user) {
+    const session = await getServerSession();
+    if (!session?.token.user.role || session.token.user.role !== "ADMIN") {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
