@@ -9,3 +9,11 @@ interface TestCaseType {
 
   createdAt: Date;
 }
+
+interface CreateTestCaseType {
+  input: string;
+
+  expectedOutput: string;
+
+  challengeId: number;
+}
