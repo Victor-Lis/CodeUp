@@ -8,23 +8,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteChallenge } from "@/hooks/use-challenge/delete";
+import { useDeleteTestCase } from "@/hooks/use-test-case/delete";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
-export default function DeleteChallengeDialog({
-  challenge,
-}: {
-  challenge: ChallengeType;
-}) {
+export default function DeleteTestCaseDialog({ testCase }: { testCase: TestCaseType }) {
   const [open, setOpen] = useState(false);
 
-  const { mutate: deleteChallenge } = useDeleteChallenge();
+  const { mutate: deleteTestCase } = useDeleteTestCase();
 
   const handleConfirmDelete = () => {
     setOpen(false);
-    deleteChallenge(challenge.id);
+    deleteTestCase(testCase.id);
   };
 
   return (

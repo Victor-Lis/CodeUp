@@ -19,13 +19,17 @@ import InputFile from "@/components/form/input-file";
 import { useCreateChallenge } from "@/hooks/use-challenge/create";
 import { useGetChallenges } from "@/hooks/use-challenge/get-all";
 
-const runFormSchema = z.object({
+const challengeFormSchema = z.object({
   file: z.instanceof(File),
 });
 
-export default function CreateChallengeForm() {
-  const form = useForm<z.infer<typeof runFormSchema>>({
-    resolver: zodResolver(runFormSchema),
+type CreateChallengeFormProps = {
+  onSuccess?: () => void;
+}
+
+export default function CreateChallengeForm({ onSuccess }: CreateChallengeFormProps) {
+  const form = useForm<z.infer<typeof challengeFormSchema>>({
+    resolver: zodResolver(challengeFormSchema),
     defaultValues: {
       file: new File([""], "", { type: "text/x-python" }),
     },
@@ -36,7 +40,7 @@ export default function CreateChallengeForm() {
   const { data: challenges } = useGetChallenges();
   const { mutate: create, isPending: isCreating } = useCreateChallenge();
 
-  async function onSubmit(values: z.infer<typeof runFormSchema>) {
+  async function onSubmit(values: z.infer<typeof challengeFormSchema>) {
     const file = values.file;
 
     const challengeId = challenges?.length ? challenges[0].id + 1 : 1;
@@ -56,6 +60,7 @@ export default function CreateChallengeForm() {
           toast.success(`Desafio #${challengeId} enviado!\n`, {
             autoClose: 5000,
           });
+          onSuccess?.();
         },
         onError: (error) => {
           console.error("Erro ao criar submissão:", error);

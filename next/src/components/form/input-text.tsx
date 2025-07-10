@@ -11,10 +11,10 @@ export default function InputText({ control, name }: InputTextProps) {
     <FormField
       control={control}
       name={name}
-      render={() => (
+      render={({ field }) => (
         <FormItem>
           <FormControl>
-            <Input type="text" />
+            <Input type="text" {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

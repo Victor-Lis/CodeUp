@@ -16,7 +16,7 @@ export function useUpdateTestCase() {
     },
     onSettled: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["testcases", data.testcaseId],
+        queryKey: ["test-cases"],
       });
     },
   });

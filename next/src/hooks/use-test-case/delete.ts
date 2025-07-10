@@ -10,7 +10,7 @@ export function useDeleteTestCase() {
     },
     onSettled: (data) => {
       queryClient.invalidateQueries({
-        queryKey: ["testcases", data.testcaseId],
+        queryKey: ["test-cases"],
       });
     },
   });

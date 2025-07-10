@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";
 import { useUpdateChallenge } from "@/hooks/use-challenge/update";
 
-const runFormSchema = z.object({
+const challengeFormSchema = z.object({
   file: z.instanceof(File),
 });
 
@@ -27,8 +27,8 @@ export default function UpdateChallengeForm({
   challenge,
   onSuccess,
 }: UpdateChallengeFormProps) {
-  const form = useForm<z.infer<typeof runFormSchema>>({
-    resolver: zodResolver(runFormSchema),
+  const form = useForm<z.infer<typeof challengeFormSchema>>({
+    resolver: zodResolver(challengeFormSchema),
     defaultValues: {
       file: new File([""], "", { type: "text/x-python" }),
     },
@@ -38,7 +38,7 @@ export default function UpdateChallengeForm({
 
   const { mutate: update, isPending: isCreating } = useUpdateChallenge();
 
-  async function onSubmit(values: z.infer<typeof runFormSchema>) {
+  async function onSubmit(values: z.infer<typeof challengeFormSchema>) {
     const file = values.file;
 
     const downloadURL = await fileUploadHandler(

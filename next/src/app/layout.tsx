@@ -7,7 +7,6 @@ import TanstackQueryWrapper from "@/providers/tanstack-query";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { cn } from "@/lib/utils";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -27,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={cn(poppins.className, "dark")}>
+      <body className={`${poppins.className} dark`}>
         <AuthWrapper>
           <TanstackQueryWrapper>
             {children}

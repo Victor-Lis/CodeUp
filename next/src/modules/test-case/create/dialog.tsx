@@ -11,24 +11,24 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 
-export default function CreateChallengeDialog() {
+export default function CreateTestCaseDialog() {
   const [open, setOpen] = useState(false);
 
   const toggleOpen = () => setOpen((prev) => !prev);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Adicionar Novo
+          Adicionar Teste
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Novo Desafio</DialogTitle>
+          <DialogTitle>Novo Teste</DialogTitle>
           <DialogDescription>
-            Preencha os detalhes para criar um novo desafio.
+            Preencha os detalhes para criar um novo teste.
           </DialogDescription>
         </DialogHeader>
         <CreateChallengeForm onSuccess={toggleOpen} />

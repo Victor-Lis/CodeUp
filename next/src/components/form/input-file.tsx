@@ -8,7 +8,12 @@ type InputFileProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export default function InputFile({ control, name, accept, onChange }: InputFileProps) {
+export default function InputFile({
+  control,
+  name,
+  accept,
+  onChange,
+}: InputFileProps) {
   return (
     <FormField
       control={control}
@@ -20,6 +25,7 @@ export default function InputFile({ control, name, accept, onChange }: InputFile
               id="file"
               type="file"
               accept={accept}
+              // {...field}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 field.onChange(file);

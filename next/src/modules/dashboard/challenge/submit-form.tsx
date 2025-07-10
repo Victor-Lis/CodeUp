@@ -1,6 +1,4 @@
-import {
-  Form
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Send } from "lucide-react";
 
 import { z } from "zod";
@@ -42,10 +40,17 @@ export default function SubmissionForm({
   async function onSubmit(values: z.infer<typeof runFormSchema>) {
     const file = values.file;
 
+    // console.log(
+    //   "download data",
+    //   file,
+    //   `challenges/${challengeId}/runs/`,
+    //   session.data?.user?.id || "anonymous"
+    // );
+
     const downloadURL = await fileUploadHandler(
       file,
       `challenges/${challengeId}/runs/`,
-      session.data?.user?.id || "anonymous",
+      session.data?.user?.id || "anonymous"
     );
 
     if (run && run.id) {
@@ -64,9 +69,12 @@ export default function SubmissionForm({
     toast.success(`Submissão para o Desafio #${challengeId} enviada!\n`, {
       autoClose: 5000,
     });
-    toast.info("Clique em validar para verificar se a submissão está correta!", {
-      autoClose: 10000,
-    });
+    toast.info(
+      "Clique em validar para verificar se a submissão está correta!",
+      {
+        autoClose: 10000,
+      }
+    );
     form.reset();
   }
 
@@ -87,10 +95,17 @@ export default function SubmissionForm({
           accept=".py"
           onChange={(e) => {
             const file = e.target.files?.[0];
-            form.setValue("file", file || new File([""], "", { type: "text/x-python" }));
+            form.setValue(
+              "file",
+              file || new File([""], "", { type: "text/x-python" })
+            );
           }}
         />
-        <Button type="submit" className="cursor-pointer" disabled={isCreating || isUpdating}>
+        <Button
+          type="submit"
+          className="cursor-pointer"
+          disabled={isCreating || isUpdating}
+        >
           <Send className="mr-2 h-4 w-4" />
           {isCreating || isUpdating ? "Enviando..." : "Enviar Submissão"}
         </Button>

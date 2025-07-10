@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export class ChallengeService {
-  static async getChallenges(userId: string) {
+  static async getChallenges(credential: string) {
     const challenges = await prisma.challenge.findMany({
       include: {
         runs: {
@@ -15,7 +15,7 @@ export class ChallengeService {
     });
 
     return challenges.map((challenge) => {
-      const run = challenge.runs.find((r) => r.userId === userId) || null;
+      const run = challenge.runs.find((r) => r.user.email === credential) || null;
       return {
         ...challenge,
         run,

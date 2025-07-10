@@ -9,10 +9,6 @@ export default function TestCasesLayout({
 }>) {
   const session = useSession();
 
-  if (session.status === "loading") {
-    return <div>Loading...</div>;
-  }
-
   if (session.status === "unauthenticated" || session.data?.user?.role !== "ADMIN") {
     redirect("/dashboard");
   }

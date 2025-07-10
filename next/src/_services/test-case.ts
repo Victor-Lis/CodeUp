@@ -24,7 +24,7 @@ export class TestCaseService {
 
   static async updateTestCase(
     id: number,
-    data: Partial<Omit<TestCaseType, "id" | "createdAt">>
+    data: Partial<Omit<TestCaseType, "id" | "createdAt" | "challengeId">>
   ) {
     const testCase = await prisma.testCase.update({
       where: { id },
