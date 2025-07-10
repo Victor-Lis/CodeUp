@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { TestCaseService } from "@/_services/test-case";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    const userSession = await getServerSession();
-    if (
-      !userSession ||
-      !userSession.token ||
-      !userSession.token.user ||
-      !userSession.token.user.email
-    ) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.token.user.role || session.token.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const url = new URL(request.url);
-    const id = parseInt(url.searchParams.get("id") || "", 10);
+    const id = parseInt(url.searchParams.get("challengeId") || "", 10);
 
     const testCases = await TestCaseService.getTestCasesByChallengeId(id);
 

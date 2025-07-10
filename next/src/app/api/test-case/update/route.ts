@@ -12,15 +12,14 @@ export async function PUT(request: Request) {
     }
 
     const url = new URL(request.url);
-    const challengeId = parseInt(url.searchParams.get("challengeId") || "", 10);
     const id = parseInt(url.searchParams.get("id") || "", 10);
 
     const body = await request.json();
     const { input, expectedOutput } = body;
 
-    if (!challengeId || isNaN(challengeId) || !id || isNaN(id)) {
+    if (!id || isNaN(id)) {
       return NextResponse.json(
-        { error: "Invalid or missing challengeId or id" },
+        { error: "Invalid or missing id" },
         { status: 400 }
       );
     }
@@ -33,7 +32,6 @@ export async function PUT(request: Request) {
     }
 
     const testCase = await TestCaseService.updateTestCase(id, {
-      challengeId,
       expectedOutput,
       input,
     });
