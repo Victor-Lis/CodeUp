@@ -1,0 +1,65 @@
+services:
+  postgres-db:
+    profiles: [dev, prod]
+    image: bitnami/postgresql:latest
+    container_name: postgres-db-codeup
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    env_file:
+      - .env # Carrega variáveis deste arquivo
+    environment:
+      - POSTGRES_USER=${DATABASE_USER:-docker}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-docker}
+      - POSTGRES_DB=codeup
+    volumes:
+      - db_volume:/bitnami/postgresql
+    networks:
+      - local-network
+
+  pg-admin:
+    profiles: [dev, prod]
+    image: dpage/pgadmin4:latest
+    container_name: pg-admin-codeup
+    depends_on:
+      - postgres-db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-user@localhost.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - 8081:80
+    restart: unless-stopped
+    env_file:
+      - .env # Carrega variáveis deste arquivo
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - local-network
+      
+  # Serviço da sua aplicação PHP
+  php-app:
+    profiles: [dev, prod]
+    container_name: php-app-codeup
+    build:
+      context: .                  # <-- MUDANÇA: O contexto agora é o diretório raiz
+      dockerfile: ./php/dockerfile  # <-- MUDANÇA: Caminho completo para o Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ./php:/var/www/html 
+    networks:
+      - local-network
+    depends_on:
+      - postgres-db 
+    restart: unless-stopped
+    env_file:
+      - .env
+    
+networks:
+  local-network:
+    driver: bridge
+
+volumes:
+  db_volume:
+  pgadmin_data:
+  php_data:

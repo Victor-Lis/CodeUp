@@ -1,0 +1,21 @@
+# ./php/Dockerfile
+
+# 1. Imagem Base com PHP e Apache
+FROM php:8.3-apache
+
+# 2. Instalar dependências, Python3 e limpar cache para manter a imagem leve
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 3. Instalar extensões PHP (exemplo: pdo_mysql)
+RUN docker-php-ext-install pdo
+
+# 4. Copiar arquivos da aplicação
+COPY ./php/ /var/www/html/
+
+# 5. Configurar permissões apropriadas
+RUN chown -R www-data:www-data /var/www/html/
+
+# 6. (Opcional) Exibir versões instaladas no build log
+RUN php -v && python3 --version

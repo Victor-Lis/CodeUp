@@ -1,0 +1,17 @@
+{
+  "name": "codeup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "docker-start": "pnpm docker:desktop & pnpm docker:compose",
+    "docker-desktop": "docker desktop start",
+    "docker-compose:recreate": "docker compose --profile prod down && docker compose --profile dev up -d --build --force-recreate",
+    "docker-compose:dev": "docker compose --profile prod down && docker compose --profile dev up -d",
+    "docker-compose:prod": "docker compose --profile prod up -d --build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1"
+}

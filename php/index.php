@@ -1,6 +1,7 @@
 <?php
 
-// Permitir requisições vindas do localhost:3000
+// error_reporting(0); // Remova durante debug
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
@@ -12,62 +13,88 @@ if (!isset($_GET['runId'])) {
 }
 
 $runId = $_GET['runId'];
-
-$apiUrl = "http://localhost:3000/api/run/get?id=" . urlencode($runId);
+$apiBaseUrl = getenv('API_BASE_URL') ?: 'http://host.docker.internal:3000';
+$apiUrl = $apiBaseUrl . "/api/run/get?id=" . urlencode($runId);
 $jsonData = @file_get_contents($apiUrl);
-
-// echo "API URL: " . $apiUrl . "\n"; // Debugging line
-// echo "JSON Data: " . $jsonData . "\n"; // Debugging line
 
 if ($jsonData === false) {
     http_response_code(500);
-    echo json_encode(['approved' => false, 'error' => 'Falha ao buscar dados da run. A API está de pé?']);
     exit;
 }
 
 $data = json_decode($jsonData);
-
 $userCodeFilePath = 'temp_user_script.py';
-
 $userCodeUrl = $data->run->fileUrl;
-
 $userCode = @file_get_contents($userCodeUrl);
 
 if ($userCode === false) {
     http_response_code(500);
-    echo json_encode(['approved' => false, 'error' => 'Falha ao baixar o arquivo de código do usuário. URL: ' . $userCodeUrl]);
+    echo json_encode(['approved' => false, 'error' => 'Falha ao baixar código. URL: ' . $userCodeUrl]);
     exit;
 }
 
 file_put_contents($userCodeFilePath, $userCode);
 
 $testCases = $data->run->challenge->testCases;
+$receivedOutputs = [];
+$allTestsPassed = false;
+$error = null;
 
 foreach ($testCases as $index => $testCase) {
     $input = $testCase->input;
     $expectedOutput = $testCase->expectedOutput;
 
-    $command = 'python ' . $userCodeFilePath;
+    $command = 'python3 ' . $userCodeFilePath;
+    $descriptorspec = [
+       0 => ["pipe", "r"],
+       1 => ["pipe", "w"],
+       2 => ["pipe", "w"]
+    ];
 
-    $command .= ' ' . $input;
+    $process = proc_open($command, $descriptorspec, $pipes);
 
-    // echo $command . "\n";
+    if (is_resource($process)) {
+        fwrite($pipes[0], $input);
+        fclose($pipes[0]);
 
-    $output = shell_exec($command); 
-    $output = trim($output);
+        $output = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
 
-    // echo $output . ' === ' . $expectedOutput . "\n";
+        $errorOutput = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
 
-    if ($output !== $expectedOutput) {
+        if (!empty($errorOutput)) {
+            // echo "[stderr] | Erro: " . nl2br($errorOutput) . "</br>";
+            $error = $errorOutput;
+        }
+
+        if (trim($output) === '') {
+            // echo "[Aviso] | Nenhuma saída produzida pelo script Python.</br>";
+            $error = "Nenhuma saída produzida pelo script Python.";
+        }
+
+        proc_close($process);
+    }
+
+    $canonical_output = trim(preg_replace('/\s+/', ' ', $output));
+    $temp_expected = str_replace('\\n', ' ', $expectedOutput);
+    $canonical_expected = trim(preg_replace('/\s+/', ' ', $temp_expected));
+
+    $receivedOutputs[] = $canonical_output;
+
+    if (strcasecmp($canonical_output, $canonical_expected) !== 0) {
         $allTestsPassed = false;
         break;
     }
-
     $allTestsPassed = true;
 }
 
 unlink($userCodeFilePath);
 
 header('Content-Type: application/json');
-echo json_encode(['approved' => $allTestsPassed, 'runId' => (int)$runId]);
-?>
+echo json_encode([
+    'approved' => $allTestsPassed,
+    'runId' => (int)$runId,
+    'testCasesResults' => $receivedOutputs,
+    'error' => $error ? $error : null,
+]);
