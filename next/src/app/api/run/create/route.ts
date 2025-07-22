@@ -15,6 +15,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { challengeId, fileUrl } = body;
 
+    if (!user?.id) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     const run = await RunService.createRun({
       challengeId,
       fileUrl,

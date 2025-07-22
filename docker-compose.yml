@@ -35,26 +35,81 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     networks:
       - local-network
-      
+
+  codeup-firebase-emulator:
+    profiles: [dev]
+    image: spine3/firebase-emulator
+    container_name: codeup-firebase-emulator
+    environment:
+      - GCP_PROJECT=codeup # Substitua pelo seu projeto do GCP
+      - ENABLE_UI=true
+    ports:
+      - "9000:9000" # Realtime Database
+      - "8080:8080" # Firestore
+      - "4000:4000" # Painel do Emulator Suite
+      - "9099:9099" # Authentication
+      - "8085:8085" # Cloud Firestore Emulator UI (se aplicável)
+      - "5001:5001" # Cloud Functions
+      - "9199:9199" # Storage
+    stdin_open: true
+    tty: true
+    command: >
+      /bin/sh -c "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data --only auth,storage"
+    volumes:
+      - ./baseline-data:/firebase/baseline-data
+      - ./entrypoint.sh:/entrypoint.sh
+    restart: always
+
   # Serviço da sua aplicação PHP
   php-app:
     profiles: [dev, prod]
     container_name: php-app-codeup
     build:
-      context: .                  # <-- MUDANÇA: O contexto agora é o diretório raiz
-      dockerfile: ./php/dockerfile  # <-- MUDANÇA: Caminho completo para o Dockerfile
+      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
+      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
     ports:
       - "8000:80"
     volumes:
-      - ./php:/var/www/html 
+      - ./php:/var/www/html
     networks:
       - local-network
     depends_on:
-      - postgres-db 
-    restart: unless-stopped
+      - postgres-db
+    restart: always
     env_file:
       - .env
-    
+
+  codeup-web:
+    container_name: codeup-web
+    profiles: [prod]
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: ./next
+      args:
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+        DATABASE_URL: ${DATABASE_URL}
+        NEXT_PUBLIC_FIREBASE_APIKEY: ${NEXT_PUBLIC_FIREBASE_APIKEY}
+        NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
+        NEXT_PUBLIC_FIREBASE_PROJECTID: ${NEXT_PUBLIC_FIREBASE_PROJECTID}
+        NEXT_PUBLIC_FIREBASE_STORAGEBUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
+        NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID: ${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
+        NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
+        NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
+        NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
+    env_file:
+      - ./next/.env # Carrega variáveis deste arquivo
+    depends_on:
+      - php-app
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3033:3333"
+    restart: unless-stopped
+    networks:
+      - local-network
+
 networks:
   local-network:
     driver: bridge

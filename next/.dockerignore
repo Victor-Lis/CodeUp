@@ -1,0 +1,11 @@
+# Ignorar dependências locais, elas serão instaladas dentro do contêiner
+node_modules
+
+# Ignorar logs do pnpm
+pnpm-debug.log
+
+# Ignorar pasta de build/dist, pois ela é gerada dentro do contêiner
+.next
+
+# Ignorar arquivos de ambiente para não incluí-los na imagem
+.env

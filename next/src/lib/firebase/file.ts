@@ -8,11 +8,11 @@ export default async function fileUploadHandler(
   fileName: string
 ): Promise<string> {
   try {
-    const storagePath = `${filePath}/${fileName}`;
+    const storagePath = `${filePath}${fileName}`;
     const storageRef = ref(storage, storagePath);
 
-    // console.log("Iniciando o upload do arquivo:", file);
-    // console.log("Caminho do armazenamento:", storagePath);
+    console.log("Iniciando o upload do arquivo:", file);
+    console.log("Caminho do armazenamento:", storagePath);
 
     return new Promise((resolve, reject) => {
       uploadBytes(storageRef, file)

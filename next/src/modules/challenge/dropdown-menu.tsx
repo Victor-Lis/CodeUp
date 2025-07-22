@@ -4,12 +4,16 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowsHorizontalIcon } from "@phosphor-icons/react/dist/ssr";
 import UpdateChallengeDialog from "./update/dialog";
 import DeleteChallengeDialog from "./delete/dialog";
 import { useState } from "react";
 
-export default function ChallengeDropdownMenu() {
+export default function ChallengeDropdownMenu({
+  challenge,
+}: {
+  challenge: ChallengeType;
+}) {
   const [open, setOpen] = useState(false);
 
   const toggleDialog = () => {
@@ -22,12 +26,12 @@ export default function ChallengeDropdownMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
           <span className="sr-only">Abrir menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          <ArrowsHorizontalIcon className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <UpdateChallengeDialog />
-        <DeleteChallengeDialog />
+        <UpdateChallengeDialog challenge={challenge} />
+        <DeleteChallengeDialog challenge={challenge} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
