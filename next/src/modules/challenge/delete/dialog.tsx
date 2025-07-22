@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteChallenge } from "@/hooks/use-challenge/delete";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
-import { Trash2 } from "lucide-react";
+import { TrashSimpleIcon } from '@phosphor-icons/react/dist/ssr';
 import { useState } from "react";
 
 export default function DeleteChallengeDialog({
@@ -30,7 +30,7 @@ export default function DeleteChallengeDialog({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Trash2 className="h-5 w-5 text-red-400 cursor-pointer" />
+        <TrashSimpleIcon className="h-5 w-5 text-red-400 cursor-pointer" />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

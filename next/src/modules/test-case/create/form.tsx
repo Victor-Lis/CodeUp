@@ -1,7 +1,6 @@
 import {
   Form
 } from "@/components/ui/form";
-import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -14,6 +13,7 @@ import { useGetChallenges } from "@/hooks/use-challenge/get-all";
 import InputTextArea from "@/components/form/input-textarea";
 import { useCreateTestCase } from "@/hooks/use-test-case/create";
 import { useParams } from "next/navigation";
+import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
 
 const testCaseFormSchema = z.object({
   input: z.string()
@@ -94,7 +94,7 @@ export default function CreateTestCaseForm({ onSuccess }: CreateTestCaseFormProp
           label="Saída Esperada"
         />
         <Button type="submit" className="cursor-pointer" disabled={isCreating}>
-          <Send className="mr-2 h-4 w-4" />
+          <PaperPlaneTiltIcon className="mr-2 h-4 w-4" />
           {isCreating ? "Enviando..." : "Enviar Submissão"}
         </Button>
       </form>

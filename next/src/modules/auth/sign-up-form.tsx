@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { CircleNotchIcon } from "@phosphor-icons/react"
 import { useSignUp } from "@/hooks/use-auth";
 import { toast } from "react-toastify";
 
@@ -122,7 +122,7 @@ export function SignUpForm() {
         >
           {isPending ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <CircleNotchIcon className="mr-2 h-4 w-4 animate-spin" />
               Cadastrando...
             </>
           ) : (

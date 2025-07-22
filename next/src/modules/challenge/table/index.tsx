@@ -2,7 +2,7 @@ import ChallengeTableHeader from "./table-header";
 import ChallengeTableBody from "./table-body";
 import { Table } from "@/components/ui/table";
 import { useGetChallenges } from "@/hooks/use-challenge/get-all";
-import { Loader2 } from "lucide-react";
+import { CircleNotchIcon } from "@phosphor-icons/react"
 
 export default function ChallengeTable() {
   const { isLoading } = useGetChallenges();
@@ -10,7 +10,7 @@ export default function ChallengeTable() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <CircleNotchIcon className="h-8 w-8 animate-spin" />
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link"; 
-import { ArrowRight } from "lucide-react"; // Opcional: Para um ícone bonito no botão
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr"; // Opcional: Para um ícone bonito no botão
 
 export default function Home() {
   return (
@@ -30,7 +30,7 @@ export default function Home() {
           className="group flex items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900 animate-fade-in"
         >
           Acessar Plataforma
-          <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+          <ArrowRightIcon className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
         </Link>
       </main>
 

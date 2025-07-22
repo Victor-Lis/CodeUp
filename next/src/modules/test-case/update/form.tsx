@@ -1,7 +1,6 @@
 import {
   Form
 } from "@/components/ui/form";
-import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +12,7 @@ import { toast } from "react-toastify";
 import InputTextArea from "@/components/form/input-textarea";
 import { useParams } from "next/navigation";
 import { useUpdateTestCase } from "@/hooks/use-test-case/update";
+import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
 
 const testCaseFormSchema = z.object({
   input: z.string()
@@ -96,7 +96,7 @@ export default function UpdateTestCaseForm({ testCase, onSuccess }: UpdateTestCa
           label="Saída Esperada"
         />
         <Button type="submit" className="cursor-pointer" disabled={isUpdating}>
-          <Send className="mr-2 h-4 w-4" />
+          <PaperPlaneTiltIcon className="mr-2 h-4 w-4" />
           {isUpdating ? "Enviando..." : "Enviar Submissão"}
         </Button>
       </form>

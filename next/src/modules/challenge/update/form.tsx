@@ -1,7 +1,6 @@
 import {
   Form,
 } from "@/components/ui/form";
-import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +12,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";
 import { useUpdateChallenge } from "@/hooks/use-challenge/update";
+import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
 
 const challengeFormSchema = z.object({
   file: z.instanceof(File),
@@ -94,7 +94,7 @@ export default function UpdateChallengeForm({
           }}
         />
         <Button type="submit" className="cursor-pointer" disabled={isCreating}>
-          <Send className="mr-2 h-4 w-4" />
+          <PaperPlaneTiltIcon className="mr-2 h-4 w-4" />
           {isCreating ? "Atualizando..." : "Atualizar Submissão"}
         </Button>
       </form>

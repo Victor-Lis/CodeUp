@@ -19,8 +19,9 @@ import {
 import { Button } from "@/components/ui/button";
 import SubmissionForm from "./submit-form";
 import {
-  FileText, Award
-} from "lucide-react";
+  CertificateIcon,
+  FileTextIcon
+} from "@phosphor-icons/react";
 import { validateRun } from "@/hooks/use-run/handle-validate";
 import RunStatus from "./run-status";
 
@@ -91,7 +92,7 @@ export default function ChallengeCard({
             rel="noopener noreferrer"
           >
             <Button variant="outline" className="w-full sm:w-auto">
-              <FileText className="mr-2 h-4 w-4" />
+              <FileTextIcon className="mr-2 h-4 w-4" />
               Baixar desafio
             </Button>
           </a>
@@ -103,7 +104,7 @@ export default function ChallengeCard({
             rel="noopener noreferrer"
           >
             <Button variant="outline" className="w-full sm:w-auto">
-              <FileText className="mr-2 h-4 w-4" />
+              <FileTextIcon className="mr-2 h-4 w-4" />
               Baixar solução
             </Button>
           </a>
@@ -112,7 +113,7 @@ export default function ChallengeCard({
 
         {isApproved ? (
           <div className="flex items-center justify-center text-center p-4 border-2 border-dashed border-green-400 rounded-lg my-2">
-            <Award className="h-8 w-8 text-green-500 mr-4" />
+            <CertificateIcon className="h-8 w-8 text-green-500 mr-4" />
             <div>
               <p className="font-semibold text-green-500">
                 Parabéns, seu desafio foi aprovado!

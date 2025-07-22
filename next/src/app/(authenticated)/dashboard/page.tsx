@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useGetChallenges } from "@/hooks/use-challenge/get-all";
 
-import { Loader2 } from "lucide-react";
+import { CircleNotchIcon } from "@phosphor-icons/react"
 import ChallengeCard from "@/modules/dashboard/challenge/card";
 
 export default function ChallengesPage() {
@@ -15,7 +15,7 @@ export default function ChallengesPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <CircleNotchIcon className="h-8 w-8 animate-spin text-primary" />
         <p className="ml-4 text-lg">Carregando desafios...</p>
       </div>
     );

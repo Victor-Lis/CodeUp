@@ -1,10 +1,4 @@
 "use client";
-import React, { useEffect } from "react";
-// import {
-//   ArrowBendDownLeftIcon,
-//   DotsThreeOutlineIcon,
-// } from "@phosphor-icons/react";
-import { MenuIcon } from "lucide-react";
 import {
   Menubar,
   MenubarContent,
@@ -16,7 +10,8 @@ import {
 } from "@/components/ui/menubar";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import { BookBookmarkIcon, BookIcon, ListIcon, SignOutIcon } from "@phosphor-icons/react/dist/ssr";
 
 function Navbar() {
   const router = useRouter();
@@ -26,7 +21,6 @@ function Navbar() {
     if (session.status === "authenticated") {
       const user = session.data?.user;
       return user?.role === "ADMIN";
-      // || user?.role === "SUPER_ADMIN";
     }
     return false;
   };
@@ -36,14 +30,14 @@ function Navbar() {
       <Menubar>
         <MenubarMenu>
           <MenubarTrigger asChild>
-            <MenuIcon
+            <ListIcon
               className="text-white cursor-pointer bg-transparent p-0 m-0 border-none shadow-none hover:bg-transparent focus:outline-none"
               size={35}
             />
           </MenubarTrigger>
           <MenubarContent className="mr-4">
             <MenubarItem onClick={() => router.push("/dashboard")}>
-              Desafios
+              <BookIcon className="mb-[0.25px]" /> Desafios
             </MenubarItem>
             {isAdmin() && (
               <>
@@ -53,10 +47,16 @@ function Navbar() {
                   className="ml-3"
                   onClick={() => router.push("/challenge")}
                 >
+                  <BookBookmarkIcon className="mb-[0.25px]" />
                   Desafios
                 </MenubarItem>
               </>
             )}
+            <MenubarSeparator />
+            <MenubarItem onClick={() => signOut({ callbackUrl: "/login" })}>
+              <SignOutIcon />
+              Sair
+            </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
       </Menubar>

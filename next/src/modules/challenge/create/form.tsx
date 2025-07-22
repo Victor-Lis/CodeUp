@@ -1,11 +1,6 @@
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
+  Form
 } from "@/components/ui/form";
-import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +13,7 @@ import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";
 import { useCreateChallenge } from "@/hooks/use-challenge/create";
 import { useGetChallenges } from "@/hooks/use-challenge/get-all";
+import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
 
 const challengeFormSchema = z.object({
   file: z.instanceof(File),
@@ -45,6 +41,8 @@ export default function CreateChallengeForm({ onSuccess }: CreateChallengeFormPr
 
     const challengeId = challenges?.length ? challenges[0].id + 1 : 1;
 
+    console.log("Submitting challenge with ID:", challengeId);
+  
     const downloadURL = await fileUploadHandler(
       file,
       `challenges/${challengeId}/`,
@@ -95,7 +93,7 @@ export default function CreateChallengeForm({ onSuccess }: CreateChallengeFormPr
           }}
         />
         <Button type="submit" className="cursor-pointer" disabled={isCreating}>
-          <Send className="mr-2 h-4 w-4" />
+          <PaperPlaneTiltIcon className="mr-2 h-4 w-4" />
           {isCreating ? "Enviando..." : "Enviar Submissão"}
         </Button>
       </form>

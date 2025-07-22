@@ -1,5 +1,4 @@
 import { Form } from "@/components/ui/form";
-import { Send } from "lucide-react";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -12,6 +11,7 @@ import fileUploadHandler from "@/lib/firebase/file";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";
+import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
 // import fileUploadHandler from "@/lib/firebase/file";
 
 const runFormSchema = z.object({
@@ -106,7 +106,7 @@ export default function SubmissionForm({
           className="cursor-pointer"
           disabled={isCreating || isUpdating}
         >
-          <Send className="mr-2 h-4 w-4" />
+          <PaperPlaneTiltIcon className="mr-2 h-4 w-4" />
           {isCreating || isUpdating ? "Enviando..." : "Enviar Submissão"}
         </Button>
       </form>

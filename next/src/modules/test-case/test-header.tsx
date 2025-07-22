@@ -2,7 +2,7 @@
 
 import { redirect, useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeftIcon, PlusCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import CreateTestCaseDialog from "./create/dialog";
 
 export default function TestCaseHeader() {
@@ -22,7 +22,7 @@ export default function TestCaseHeader() {
           onClick={() => router.back()}
           className="mb-4 py-1 px-2 cursor-pointer"
         >
-          <ArrowLeft className="size-6" />
+          <ArrowLeftIcon className="size-6" />
           Voltar para Desafios
         </Button>
         <h1 className="text-3xl font-bold">

@@ -6,9 +6,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { Pencil } from "lucide-react";
 import UpdateChallengeForm from "./form";
 import { useState } from "react";
+import { PenIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function UpdateChallengeDialog({
   challenge,
@@ -24,7 +24,7 @@ export default function UpdateChallengeDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Pencil className="h-5 w-5 cursor-pointer" />
+        <PenIcon className="h-5 w-5 cursor-pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

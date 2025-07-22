@@ -8,8 +8,8 @@ import {
 import CreateChallengeForm from "./form";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { useState } from "react";
+import { PlusCircleIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function CreateChallengeDialog() {
   const [open, setOpen] = useState(false);
@@ -20,7 +20,7 @@ export default function CreateChallengeDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <PlusCircle className="mr-2 h-4 w-4" />
+          <PlusCircleIcon className="mr-2 h-4 w-4" />
           Adicionar Novo
         </Button>
       </DialogTrigger>

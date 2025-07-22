@@ -5,14 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import CreateChallengeForm from "./form";
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { Button } from "@/components/ui/button";
-import { Pencil, PlusCircle } from "lucide-react";
 import { useState } from "react";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import UpdateChallengeForm from "@/modules/challenge/update/form";
 import UpdateTestCaseForm from "./form";
+import { PenIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function UpdateTestCaseDialog({
   testCase,
@@ -24,9 +20,9 @@ export default function UpdateTestCaseDialog({
   const toggleOpen = () => setOpen((prev) => !prev);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={toggleOpen}>
       <DialogTrigger asChild>
-        <Pencil className="h-5 w-5 cursor-pointer" />
+        <PenIcon className="h-5 w-5 cursor-pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

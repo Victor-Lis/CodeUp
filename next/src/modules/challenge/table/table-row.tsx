@@ -4,8 +4,8 @@ import { format } from "date-fns";
 import UpdateChallengeDialog from "../update/dialog";
 import DeleteChallengeDialog from "../delete/dialog";
 
-import { FlaskConical } from 'lucide-react'
 import Link from "next/link";
+import { TestTubeIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function ChallengeTableRow({
   challenge,
@@ -31,7 +31,7 @@ export default function ChallengeTableRow({
       </TableCell>
       <TableCell className="flex items-center justify-end py-3 gap-3">
         <Link href={`/challenge/${challenge.id}/test-cases`}>
-          <FlaskConical className="h-5.5 w-5.5" />
+          <TestTubeIcon className="h-5.5 w-5.5" />
         </Link>
         <UpdateChallengeDialog challenge={challenge} />
         {challenge.runs.length > 0 ? null : <DeleteChallengeDialog challenge={challenge} />}
