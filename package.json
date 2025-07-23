@@ -6,8 +6,9 @@
   "scripts": {
     "docker-start": "pnpm docker:desktop & pnpm docker:compose",
     "docker-desktop": "docker desktop start",
-    "docker-compose:recreate": "docker compose --profile prod down && docker compose --profile dev up -d --build --force-recreate",
+    "docker-compose:dev-recreate": "docker compose --profile prod down && docker compose --profile dev up -d --build --force-recreate",
     "docker-compose:dev": "docker compose --profile prod down && docker compose --profile dev up -d",
+    "docker-compose:prod-recreate": "docker compose --profile prod up -d --build --force-recreate",
     "docker-compose:prod": "docker compose --profile prod up -d --build"
   },
   "keywords": [],

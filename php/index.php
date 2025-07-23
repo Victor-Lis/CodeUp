@@ -13,8 +13,17 @@ if (!isset($_GET['runId'])) {
 }
 
 $runId = $_GET['runId'];
-$apiBaseUrl = getenv('API_BASE_URL') ?: 'http://host.docker.internal:3000';
+$apiBaseUrl = getenv('API_BASE_URL');
+// echo "API Base URL: " . $apiBaseUrl . "</br>";
+
+if (!$apiBaseUrl) {
+    http_response_code(500);
+    echo json_encode(['approved' => false, 'error' => 'Variável de ambiente API_BASE_URL não definida.']);
+    exit;
+}
+
 $apiUrl = $apiBaseUrl . "/api/run/get?id=" . urlencode($runId);
+// echo "API URL: " . $apiUrl . "</br>";
 $jsonData = @file_get_contents($apiUrl);
 
 if ($jsonData === false) {

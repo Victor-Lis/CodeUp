@@ -1,10 +1,28 @@
-# Etapa 1: Builder
+# ==============================================================================
+# ETAPA 1: BUILDER - Prepara e constrói a aplicação
+# ==============================================================================
 FROM node:22-alpine AS builder
+
+# Instala o pnpm globalmente
 RUN npm install -g pnpm
+
+# Define o diretório de trabalho
 WORKDIR /app
 
+# Copia os arquivos de manifesto de pacotes para aproveitar o cache do Docker
+COPY package.json pnpm-lock.yaml ./
+
+# Instala TODAS as dependências (dev e prod) necessárias para o build
+RUN pnpm install --frozen-lockfile
+
+# Copia o restante do código-fonte da aplicação (src, public, tsconfig, etc.)
+COPY . .
+
+# Argumentos de build para as variáveis de ambiente
 ARG DATABASE_URL
 ARG NEXTAUTH_SECRET
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG API_BASE_URL
 ARG NEXT_PUBLIC_FIREBASE_APIKEY
 ARG NEXT_PUBLIC_FIREBASE_AUTHDOMAIN
 ARG NEXT_PUBLIC_FIREBASE_PROJECTID
@@ -14,15 +32,11 @@ ARG NEXT_PUBLIC_FIREBASE_APPID
 ARG NEXT_PUBLIC_FIREBASE_MEASUREMENTID
 ARG NEXT_PUBLIC_VALIDATOR_API_URL
 
-# Copia apenas os arquivos de dependência primeiro para aproveitar o cache
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
-
-# Copia o resto do código-fonte
-COPY . ./
-
-RUN echo "DATABASE_URL=$DATABASE_URL" >> .env
+# Cria o arquivo .env temporário para o build e a geração do Prisma
+RUN echo "DATABASE_URL=$DATABASE_URL" > .env
 RUN echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
+RUN echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> .env
+RUN echo "API_BASE_URL=$API_BASE_URL" >> .env
 RUN echo "NEXT_PUBLIC_FIREBASE_APIKEY=$NEXT_PUBLIC_FIREBASE_APIKEY" >> .env
 RUN echo "NEXT_PUBLIC_FIREBASE_AUTHDOMAIN=$NEXT_PUBLIC_FIREBASE_AUTHDOMAIN" >> .env
 RUN echo "NEXT_PUBLIC_FIREBASE_PROJECTID=$NEXT_PUBLIC_FIREBASE_PROJECTID" >> .env
@@ -32,24 +46,49 @@ RUN echo "NEXT_PUBLIC_FIREBASE_APPID=$NEXT_PUBLIC_FIREBASE_APPID" >> .env
 RUN echo "NEXT_PUBLIC_FIREBASE_MEASUREMENTID=$NEXT_PUBLIC_FIREBASE_MEASUREMENTID" >> .env
 RUN echo "NEXT_PUBLIC_VALIDATOR_API_URL=$NEXT_PUBLIC_VALIDATOR_API_URL" >> .env
 
-# Constrói a aplicação
+# Gera o Prisma Client (agora com as dependências e o schema disponíveis)
+RUN pnpm generate
+
+# Constrói a aplicação Next.js para produção
 RUN pnpm build
-RUN rm -rf .env
+
+# Remove o arquivo .env para não ser incluído na imagem final
+# Exibe o conteúdo do .env gerado durante o build
+RUN cat .env
+# RUN rm .env
+
+# Remove as dependências de desenvolvimento para diminuir o tamanho da pasta node_modules
 RUN pnpm prune --production
 
-# Etapa 2: Runner (Execução)
+# ==============================================================================
+# ETAPA 2: RUNNER - Executa a aplicação construída
+# ==============================================================================
 FROM node:22-alpine AS runner
+
+# Instala o pnpm globalmente
 RUN npm install -g pnpm
+
+# Define o diretório de trabalho
 WORKDIR /app
 
-# Copia apenas os artefatos necessários da etapa de build
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.ts ./next.config.ts
-COPY --from=builder /app/public ./public
+# Cria um usuário e grupo não-root por segurança
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# A porta será definida pela variável de ambiente no docker-compose
-EXPOSE 3333
+# Copia os artefatos de build da etapa anterior com as permissões corretas
+COPY --from=builder --chown=appuser:appgroup /app/.env ./.env
+COPY --from=builder --chown=appuser:appgroup /app/public ./public
+COPY --from=builder --chown=appuser:appgroup /app/.next ./.next
+COPY --from=builder --chown=appuser:appgroup /app/package.json ./package.json
+COPY --from=builder --chown=appuser:appgroup /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder --chown=appuser:appgroup /app/next.config.ts ./next.config.ts
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/prisma ./prisma
+
+# Define o usuário não-root para executar a aplicação
+USER appuser
+
+# Expõe a porta que a aplicação vai rodar (padrão do Next.js)
+EXPOSE 3000
+
+# Comando para iniciar a aplicação em produção
 CMD ["pnpm", "start"]

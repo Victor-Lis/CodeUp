@@ -33,7 +33,7 @@ const handler = NextAuth({
     // // Add other providers here if needed
   ],
   pages: {
-    signIn: "/login",
+    signIn: `${process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/api$/, "")}/login`,
   },
   session: {
     strategy: "jwt",
@@ -50,8 +50,8 @@ const handler = NextAuth({
       }
 
       session.token = token;
-      
-      return session
+
+      return session;
     },
   },
 });

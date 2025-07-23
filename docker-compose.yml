@@ -1,5 +1,5 @@
 services:
-  postgres-db:
+  postgres-db-codeup:
     profiles: [dev, prod]
     image: bitnami/postgresql:latest
     container_name: postgres-db-codeup
@@ -17,12 +17,12 @@ services:
     networks:
       - local-network
 
-  pg-admin:
+  pg-admin-codeup:
     profiles: [dev, prod]
     image: dpage/pgadmin4:latest
     container_name: pg-admin-codeup
     depends_on:
-      - postgres-db
+      - postgres-db-codeup
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-user@localhost.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
@@ -59,6 +59,8 @@ services:
       - ./baseline-data:/firebase/baseline-data
       - ./entrypoint.sh:/entrypoint.sh
     restart: always
+    networks:
+      - local-network
 
   # Serviço da sua aplicação PHP
   php-app:
@@ -74,10 +76,10 @@ services:
     networks:
       - local-network
     depends_on:
-      - postgres-db
+      - postgres-db-codeup
     restart: always
     env_file:
-      - .env
+      - ./php/.env
 
   codeup-web:
     container_name: codeup-web
@@ -90,6 +92,8 @@ services:
       args:
         NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
         DATABASE_URL: ${DATABASE_URL}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        API_BASE_URL: ${API_BASE_URL}
         NEXT_PUBLIC_FIREBASE_APIKEY: ${NEXT_PUBLIC_FIREBASE_APIKEY}
         NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
         NEXT_PUBLIC_FIREBASE_PROJECTID: ${NEXT_PUBLIC_FIREBASE_PROJECTID}
@@ -98,14 +102,15 @@ services:
         NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
         NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
-    env_file:
-      - ./next/.env # Carrega variáveis deste arquivo
+    # env_file:
+      # - ./next/.env # Carrega variáveis deste arquivo
     depends_on:
       - php-app
     environment:
       - NODE_ENV=production
     ports:
-      - "3033:3333"
+      - "3033:3000"
+    command: sh -c "pnpm migrate deploy && pnpm start"
     restart: unless-stopped
     networks:
       - local-network
