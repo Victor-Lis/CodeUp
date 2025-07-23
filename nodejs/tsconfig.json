@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node 20",
+  "_version": "20.1.0",
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "module": "None",
+    "esModuleInterop": true,
+    "target": "es2023",
+    "strict": true,
+    "moduleResolution": "node",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@prisma/*": ["./prisma/*"]
+    }
+  }
+}

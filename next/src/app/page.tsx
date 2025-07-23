@@ -17,7 +17,7 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 items-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl animate-fade-in-down">
-            Sua jornada no mundo dev melhora aqui.
+            Sua jornada no mundo dev melhorará aqui.
           </h1>
           <p className="max-w-2xl text-lg text-gray-300 animate-fade-in-up">
             Acesse a plataforma para resolver problemas de programação e

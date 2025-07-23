@@ -1,0 +1,14 @@
+model TestCase {
+  id             Int      @id @default(autoincrement())
+
+  input          String   @db.Text
+
+  expectedOutput String   @db.Text
+
+  challenge   Challenge @relation(fields: [challengeId], references: [id])
+  challengeId Int
+
+  createdAt DateTime @default(now())
+
+  @@map("test_cases")
+}
