@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CreateFirebaseImageSchema = z.object({
+export const CreateFirebaseFileSchema = z.object({
   originalname: z.string(),
   mimetype: z.string(),
   buffer: z
@@ -8,4 +8,4 @@ export const CreateFirebaseImageSchema = z.object({
   size: z.number().int().positive(),
 });
 
-export type CreateFirebaseImageType = z.infer<typeof CreateFirebaseImageSchema>;
+export type CreateFirebaseFileType = z.infer<typeof CreateFirebaseFileSchema>;
