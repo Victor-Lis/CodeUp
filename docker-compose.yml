@@ -103,7 +103,7 @@ services:
         NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
     # env_file:
-      # - ./next/.env # Carrega variáveis deste arquivo
+    # - ./next/.env # Carrega variáveis deste arquivo
     depends_on:
       - php-app
     environment:
@@ -115,30 +115,26 @@ services:
     networks:
       - local-network
 
-  star-stock-nodejs:
-    container_name: star-stock-nodejs
+  codeup-nodejs:
+    container_name: codeup-nodejs
     profiles: [prod]
     dns:
       - 8.8.8.8
       - 8.8.4.4
     build:
       context: ./nodejs
-      args:
-        PORT: ${API_PORT}
     env_file:
       - ./nodejs/.env # Carrega variáveis deste arquivo
     depends_on:
-      - postgres-db
+      - postgres-db-codeup
     environment:
       - NODE_ENV=production
-      - PORT=${API_PORT}
     ports:
-      - "3345:${API_PORT}"
+      - "3345:3033"
     restart: unless-stopped
     networks:
       - local-network
     command: sh -c "pnpm migrate deploy && pnpm start"
-
 
   # codeup-web-dev:
   #   container_name: codeup-web-dev

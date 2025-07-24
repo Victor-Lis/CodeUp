@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 
 export class SeedService {
   static async createAdmin() {
-    const existingAdmin = await prisma.operator.findFirst({
+    const existingAdmin = await prisma.user.findFirst({
       where: {
         username: env.ADMIN_USERNAME,
       },
@@ -15,17 +15,17 @@ export class SeedService {
       return;
     }
 
-    console.log("Creating admin operator...");
-    await prisma.operator.create({
+    console.log("Creating admin user...");
+    await prisma.user.create({
       data: {
         username: env.ADMIN_USERNAME,
         password: await bcrypt.hash(env.ADMIN_PASSWORD, 10),
         name: "Admin",
         email: "",
-        operatorType: "ADMIN",
+        userType: "ADMIN",
       },
     });
 
-    console.log("Admin operator created successfully.");
+    console.log("Admin user created successfully.");
   }
 }

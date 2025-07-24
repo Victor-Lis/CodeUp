@@ -14,7 +14,6 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url().min(1),
   PORT: z.coerce.number().default(3333),
   JWT_SECRET: z.string().min(1, "JWT secret is required"),
-  COOKIE_DOMAIN: z.string().min(1, "Cookie domain is required"),
   ADMIN_USERNAME: z.string().min(1, "Admin username is required"),
   ADMIN_PASSWORD: z.string().min(1, "Admin password is required"),
   FIREBASE_API_KEY: z.string().min(1, "Firebase API key is required"),
@@ -24,8 +23,11 @@ export const envSchema = z.object({
   FIREBASE_MESSAGING_SENDER_ID: z.string().min(1, "Firebase Messaging Sender ID is required"),
   FIREBASE_APP_ID: z.string().min(1, "Firebase App ID is required"),
   FIREBASE_MEASUREMENT_ID: z.string().optional(),
-  ORIGIN: z.string().url(),
 });
 
 export const env = envSchema.parse(process.env);
-console.log("Environment variables loaded:", env)
+console.log("Environment variables loaded:", {
+  ...env,
+  ADMIN_USERNAME: "******", // Mask sensitive information
+  ADMIN_PASSWORD: "******", // Mask sensitive information
+})

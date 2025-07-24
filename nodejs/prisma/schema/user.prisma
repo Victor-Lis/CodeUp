@@ -9,6 +9,8 @@ model User {
   updatedAt    DateTime     @updatedAt
   userType UserType @default(REGULAR) @map("user_type")
 
+  runs Run[]
+
   @@map("users")
 }
 

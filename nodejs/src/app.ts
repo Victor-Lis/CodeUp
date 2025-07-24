@@ -14,19 +14,11 @@ import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 
 import { env } from "@/config/env";
 
-import { stockRoutes } from "./routes/stock";
-import { stockLocationRoutes } from "./routes/stock-location";
-import { operatorRoutes } from "./routes/operator";
+import { userRoutes } from "./routes/user";
 import { authenticate } from "./middlewares/auth";
 import { authRoutes } from "./routes/auth";
 import { errorHandler } from "./errors/error-handler";
 import { SeedService } from "./services/seed";
-import { itemLocationRoutes } from "./routes/item-location";
-import { technicianRoutes } from "./routes/technician";
-import { itemModelRoutes } from "./routes/item-model";
-import { categoryRoutes } from "./routes/category";
-import { itemRoutes } from "./routes/item";
-import { movementHistoryRoute } from "./routes/movement-history";
 import { guestRoutes } from "./routes/_guest";
 
 export const app = fastify();
@@ -94,7 +86,7 @@ app.register(guestRoutes);
 app.register((app) => {
   app.addHook("preHandler", authenticate);
 
-  app.register(operatorRoutes, { prefix: "/operators" });
+  app.register(userRoutes, { prefix: "/users" });
 });
 
 app.listen({ port: env.PORT, host: "0.0.0.0" }).then(() => {

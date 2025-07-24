@@ -22,7 +22,7 @@ import { CircleNotchIcon } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 
 const formSchema = z.object({
-  username: z.string().min(1, {
+  credential: z.string().min(1, {
     message: "O nome de usuário é obrigatório.",
   }),
   password: z.string().min(1, {
@@ -38,7 +38,7 @@ export function SignInForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      credential: "",
       password: "",
     },
   });
@@ -49,7 +49,7 @@ export function SignInForm() {
 
     try {
       const result = await signIn("credentials", {
-        username: values.username,
+        credential: values.credential,
         password: values.password,
         redirect: true,
         callbackUrl: "/dashboard",
@@ -76,7 +76,7 @@ export function SignInForm() {
       >
         <FormField
           control={form.control}
-          name="username"
+          name="credential"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Username</FormLabel>

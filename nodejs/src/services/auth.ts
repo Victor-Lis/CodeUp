@@ -1,7 +1,7 @@
 import { env } from "@/config/env";
 import prisma from "@/config/prisma";
 import { InvalidCredentials } from "@/errors/invalid-credentials";
-import { OperatorType } from "@/schemas/operator";
+import { UserType } from "@/schemas/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -11,22 +11,22 @@ export class AuthService {
   }
 
   static async verifyUser(credential: string, password: string) {
-    const operator = await prisma.operator.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         OR: [{ email: credential }, { username: credential }],
         isActive: true,
       },
     });
 
-    if (operator && (await bcrypt.compare(password, operator.password))) {
-      const { password, ...result } = operator;
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const { password, ...result } = user;
       return result;
     }
 
     return null;
   }
 
-  static async login(data: Omit<OperatorType, "password">) {
+  static async login(data: Omit<UserType, "password">) {
     const secretKey = process.env.JWT_SECRET as string;
     return jwt.sign(
       {
@@ -34,7 +34,7 @@ export class AuthService {
           id: data.id,
           name: data.name,
           username: data.username,
-          type: data.operatorType,
+          type: data.userType,
         },
       },
       secretKey,
