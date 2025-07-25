@@ -18,6 +18,9 @@
 /.next/
 /out/
 
+# nodejs
+*.sh
+
 # production
 /build
 

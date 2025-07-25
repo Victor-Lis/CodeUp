@@ -9,7 +9,7 @@ export function updateUser(app: FastifyTypedInstance) {
     "/:id",
     {
       schema: {
-        summary: "Update a new operator ",
+        summary: "Update a new user ",
         tags: ["User"],
         params: z.object({
           id: z.coerce.number(),
@@ -24,13 +24,13 @@ export function updateUser(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const { id } = request.params;
-      const { name, email, password, username, operatorType, isActive } = request.body;
+      const { name, email, password, username, userType, isActive } = request.body;
       await UserService.updateUser(id, {
         name,
         username,
         email,
         password,
-        operatorType,
+        userType,
         isActive,
       });
       reply.status(204).send({
