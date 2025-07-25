@@ -29,8 +29,10 @@ export const app = fastify();
 const theme = new SwaggerTheme();
 const content = theme.getBuffer(SwaggerThemeNameEnum.DARK); // Dark mode for Swagger UI
 
+console.log("Environment:", env);
+
 app.register(cors, {
-  origin: [process.env.ORIGIN as string],
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   // credentials: true,
 });

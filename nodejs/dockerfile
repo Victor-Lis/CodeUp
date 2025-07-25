@@ -1,40 +1,87 @@
-# Etapa 1: Builder
-FROM node:20-alpine AS builder
+#-----------------------------
+# Estágio 1: Dependências Base
+#-----------------------------
+FROM node:22-alpine AS deps
+# Instala o pnpm
 RUN npm install -g pnpm
 WORKDIR /app
 
+# Copia apenas os arquivos de manifesto de pacote
 COPY package.json pnpm-lock.yaml ./
+# Instala TODAS as dependências (dev e prod) para o estágio de build
 RUN pnpm install --frozen-lockfile
 
-COPY . .
 
-RUN pnpm build
-RUN pnpm prune --production
-
-# Etapa 2: Runner (Execução)
-FROM node:20-alpine AS runner
+#-----------------------------
+# Estágio 2: Builder
+#-----------------------------
+FROM node:22-alpine AS builder
+# Instala o pnpm
 RUN npm install -g pnpm
 WORKDIR /app
 
-# 1. Cria o usuário
+# Copia as dependências já instaladas do estágio anterior
+COPY --from=deps /app/node_modules ./node_modules
+# Copia o resto do código fonte
+COPY . .
+
+# Executa o build da aplicação
+RUN pnpm build
+
+
+#-----------------------------
+# Estágio 3: Produção (Runner)
+#-----------------------------
+FROM node:22-alpine AS runner
+# Instala o pnpm
+RUN npm install -g pnpm
+WORKDIR /app
+
+# Cria um usuário e grupo não-root para segurança
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# 2. Copia arquivos necessários
+# Copia os artefatos de build e dependências de produção
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
-# COPY --from=builder /app/node_modules/swagger-ui-dist /app/node_modules/swagger-ui-dist
-COPY --from=builder /app/dist ./dist
 
-# 3. Instala dependências de produção
+# Instala SOMENTE as dependências de produção
 RUN pnpm install --prod --frozen-lockfile
 
-# 🔧 4. Gera Prisma Client aqui mesmo
+# Gera o cliente Prisma
 RUN pnpm generate
 
-# 5. Permissões e troca de usuário
-RUN chown -R appuser:appgroup /app
+# Muda para o usuário não-root
 USER appuser
 
-EXPOSE ${API_PORT}
-CMD ["pnpm", "start"]
+# Expõe a porta que a aplicação vai usar
+# EXPOSE 3033
+
+# Comando para iniciar a aplicação em produção
+CMD pnpm start
+
+
+#-----------------------------
+# Estágio 4: Desenvolvimento
+#-----------------------------
+FROM node:22-alpine AS dev
+# Instala o pnpm
+RUN npm install -g pnpm
+WORKDIR /app
+
+# Copia as dependências pré-instaladas
+COPY --from=deps /app/node_modules ./node_modules
+# Copia os arquivos de manifesto
+COPY package.json pnpm-lock.yaml ./
+# Copia o Prisma e gera o cliente
+COPY ./prisma ./prisma
+RUN pnpm generate
+# Copia o restante do código fonte
+COPY . .
+
+# Expõe a porta
+# EXPOSE 3033
+
+# Comando para iniciar em modo de desenvolvimento
+CMD pnpm dev

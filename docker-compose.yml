@@ -1,8 +1,8 @@
 services:
-  postgres-db-codeup:
+  codeup-postgres-db:
     profiles: [dev, prod]
     image: bitnami/postgresql:latest
-    container_name: postgres-db-codeup
+    container_name: codeup-postgres-db
     ports:
       - "5433:5432"
     restart: unless-stopped
@@ -17,12 +17,12 @@ services:
     networks:
       - local-network
 
-  pg-admin-codeup:
+  codeup-pg-admin:
     profiles: [dev, prod]
     image: dpage/pgadmin4:latest
-    container_name: pg-admin-codeup
+    container_name: codeup-pg-admin
     depends_on:
-      - postgres-db-codeup
+      - codeup-postgres-db
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-user@localhost.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
@@ -35,6 +35,78 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     networks:
       - local-network
+
+  codeup-php:
+    profiles: [dev, prod]
+    container_name: codeup-php
+    build:
+      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
+      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ./php:/var/www/html
+    networks:
+      - local-network
+    depends_on:
+      - codeup-postgres-db
+    restart: always
+    env_file:
+      - ./php/.env
+
+  codeup-next:
+    container_name: codeup-next
+    dns:
+      - 8.8.8.81
+      - 8.8.4.4
+    build:
+      context: ./next
+      target: dev
+      args:
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+        DATABASE_URL: ${DATABASE_URL}
+        NEXT_PUBLIC_FIREBASE_APIKEY: ${NEXT_PUBLIC_FIREBASE_APIKEY}
+        NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
+        NEXT_PUBLIC_FIREBASE_PROJECTID: ${NEXT_PUBLIC_FIREBASE_PROJECTID}
+        NEXT_PUBLIC_FIREBASE_STORAGEBUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
+        NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID: ${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
+        NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
+        NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
+        NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
+    env_file:
+    - ./next/.env # Carrega variáveis deste arquivo
+    depends_on:
+      - codeup-php
+      - codeup-nodejs
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3033:3000"
+    # command: sh -c "pnpm migrate deploy && pnpm start"
+    restart: always
+    networks:
+      - local-network
+
+  codeup-nodejs:
+    container_name: codeup-nodejs
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: ./nodejs
+      target: dev
+    env_file:
+      - ./nodejs/.env # Carrega variáveis deste arquivo
+    depends_on:
+      - codeup-postgres-db
+    # environment:
+      # - NODE_ENV=production
+    ports:
+      - "3034:3033"
+    restart: always
+    networks:
+      - local-network
+    command: sh -c "pnpm migrate deploy && pnpm dev"
 
   codeup-firebase-emulator:
     profiles: [dev]
@@ -56,103 +128,11 @@ services:
     command: >
       /bin/sh -c "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data --only auth,storage"
     volumes:
-      - ./baseline-data:/firebase/baseline-data
+      - ./firebase-files:/firebase/baseline-data
       - ./entrypoint.sh:/entrypoint.sh
     restart: always
     networks:
       - local-network
-
-  # Serviço da sua aplicação PHP
-  php-app:
-    profiles: [dev, prod]
-    container_name: php-app-codeup
-    build:
-      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
-      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
-    ports:
-      - "8000:80"
-    volumes:
-      - ./php:/var/www/html
-    networks:
-      - local-network
-    depends_on:
-      - postgres-db-codeup
-    restart: always
-    env_file:
-      - ./php/.env
-
-  codeup-next:
-    container_name: codeup-next
-    profiles: [prod]
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    build:
-      context: ./next
-      args:
-        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-        DATABASE_URL: ${DATABASE_URL}
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        API_BASE_URL: ${API_BASE_URL}
-        NEXT_PUBLIC_FIREBASE_APIKEY: ${NEXT_PUBLIC_FIREBASE_APIKEY}
-        NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
-        NEXT_PUBLIC_FIREBASE_PROJECTID: ${NEXT_PUBLIC_FIREBASE_PROJECTID}
-        NEXT_PUBLIC_FIREBASE_STORAGEBUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
-        NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID: ${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
-        NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
-        NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
-        NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
-    # env_file:
-    # - ./next/.env # Carrega variáveis deste arquivo
-    depends_on:
-      - php-app
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "3033:3000"
-    command: sh -c "pnpm migrate deploy && pnpm start"
-    restart: unless-stopped
-    networks:
-      - local-network
-
-  codeup-nodejs:
-    container_name: codeup-nodejs
-    profiles: [prod]
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    build:
-      context: ./nodejs
-    env_file:
-      - ./nodejs/.env # Carrega variáveis deste arquivo
-    depends_on:
-      - postgres-db-codeup
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "3345:3033"
-    restart: unless-stopped
-    networks:
-      - local-network
-    command: sh -c "pnpm migrate deploy && pnpm start"
-
-  # codeup-web-dev:
-  #   container_name: codeup-web-dev
-  #   profiles: [dev]
-  #   build:
-  #     context: ./next
-  #     dockerfile: dockerfile.dev
-  #   command: pnpm dev
-  #   environment:
-  #     - NODE_ENV=development
-  #     - WATCHPACK_POLLING=true
-  #   volumes:
-  #     - ./next:/app       # Certifique-se de que isso aponta pro código corretamente
-  #     - /app/node_modules
-  #     - /app/.next
-  #   ports:
-  #     - 3000:3000
-  #   restart: always
 
 networks:
   local-network:
