@@ -14,12 +14,15 @@ import { SwaggerTheme, SwaggerThemeNameEnum } from "swagger-themes";
 
 import { env } from "@/config/env";
 
-import { userRoutes } from "./routes/user";
 import { authenticate } from "./middlewares/auth";
-import { authRoutes } from "./routes/auth";
 import { errorHandler } from "./errors/error-handler";
 import { SeedService } from "./services/seed";
+
+// Routes
+import { authRoutes } from "./routes/auth";
 import { guestRoutes } from "./routes/_guest";
+import { userRoutes } from "./routes/user";
+import { challengeRoutes } from "./routes/challenge";
 
 export const app = fastify();
 
@@ -86,6 +89,7 @@ app.register(guestRoutes);
 app.register((app) => {
   app.addHook("preHandler", authenticate);
 
+  app.register(challengeRoutes, { prefix: "/challenges" });
   app.register(userRoutes, { prefix: "/users" });
 });
 

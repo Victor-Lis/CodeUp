@@ -6,6 +6,9 @@ import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
 } from "fastify-type-provider-zod";
+import { FileDownloadError } from "./file-download-error";
+import { FileUploadError } from "./file-upload-error";
+import { FileDeleteError } from "./file-delete-error";
 
 type FastifyErrorHandler = FastifyInstance["errorHandler"];
 
@@ -60,6 +63,21 @@ export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
 
   if (error instanceof InvalidCredentials) {
     return reply.status(401).send({
+      message: error.message,
+      details: {
+        issues: error.validation,
+        method: request.method,
+        url: request.url,
+      },
+    });
+  }
+
+  if (
+    error instanceof FileDownloadError ||
+    error instanceof FileDeleteError ||
+    error instanceof FileUploadError
+  ) {
+    return reply.status(400).send({
       message: error.message,
       details: {
         issues: error.validation,

@@ -9,12 +9,15 @@ import {
 } from "firebase/storage";
 import { NotFound } from "@/errors/not-found";
 import { FirebaseFileType } from "@/schemas/firebase-file";
+import { FileUploadError } from "@/errors/file-upload-error";
+import { FileDownloadError } from "@/errors/file-download-error";
+import { FileDeleteError } from "@/errors/file-delete-error";
 
 type FirebaseFileServiceResponse = {
   success: boolean;
 };
 
-export class FilebaseFilesService {
+export class FilebaseFileService {
   static async uploadImage({
     path,
     file,
@@ -30,23 +33,30 @@ export class FilebaseFilesService {
         throw new Error("Dados do arquivo não fornecidos.");
       }
 
-      const mimeType = fileData.match(
-        /data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/
-      )?.[1];
+      const mimeType = file.mimetype || "application/pdf";
 
-      // 2. Extrair apenas os dados em Base64, removendo o cabeçalho "data:image/png;base64,".
-      const base64Data = fileData.replace(/^data:image\/\w+;base64,/, "");
-
-      const imageBuffer = Buffer.from(base64Data, "base64");
+      const base64Data = fileData; // se já está em base64 puro
+      const fileBuffer = Buffer.isBuffer(file.buffer)
+          ? file.buffer
+           : Buffer.from(file.buffer as string, "base64");
 
       const date = new Date();
       const formattedDate = date.toISOString().replace(/[:.]/g, "-");
       const filePath = `${path}/${fileName}-${formattedDate}`;
+      // console.log("Caminho do arquivo:", filePath);
 
-      const storage = getStorage(firebase);
-      const storageRef = ref(storage, filePath);
+      const storage = await getStorage(firebase);
+      const storageRef = await ref(storage, filePath);
 
-      const uploadTask = uploadBytesResumable(storageRef, imageBuffer, {
+      // console.log("Referência do armazenamento:", storageRef);
+
+      // console.log("Upload Data: ", {
+      //   storageRef,
+      //   fileBuffer,
+      //   mimeType,
+      // });
+
+      const uploadTask = uploadBytesResumable(storageRef, fileBuffer, {
         contentType: mimeType,
       });
 
@@ -59,7 +69,11 @@ export class FilebaseFilesService {
             console.log(`Upload está ${progress.toFixed(2)}% completo.`);
           },
           (error) => {
-            reject(new Error(`Falha no upload do arquivo: ${error.message}`));
+            reject(
+              new FileUploadError(
+                `Erro ao fazer upload do arquivo: ${error.message}`
+              )
+            );
           },
           async () => {
             try {
@@ -68,7 +82,11 @@ export class FilebaseFilesService {
               resolve(downloadURL); // Retorna a URL de download
             } catch (error) {
               console.error("Erro ao obter URL de download:", error);
-              reject(new Error(`Falha ao obter URL de download: ${error}`));
+              reject(
+                new FileDownloadError(
+                  `Falha ao obter URL de download: ${error}`
+                )
+              );
             }
           }
         );
@@ -86,7 +104,11 @@ export class FilebaseFilesService {
     }
   }
 
-  static async deleteImage({ fileUrl }: { fileUrl: string }): Promise<FirebaseFileServiceResponse> {
+  static async deleteImage({
+    fileUrl,
+  }: {
+    fileUrl: string;
+  }): Promise<FirebaseFileServiceResponse> {
     if (!fileUrl) {
       throw new NotFound("Imagem não encontrada");
     }
@@ -94,19 +116,25 @@ export class FilebaseFilesService {
     const storage = getStorage(firebase);
     const imageRef = ref(storage, fileUrl);
     try {
-      const response = await deleteObject(imageRef).then(() => {
-        console.log("Imagem deletada com sucesso:", fileUrl);
-        return {
-          success: true,
-        };
-      }).catch((error) => {
-        console.error("Erro ao deletar imagem:", error);
-        throw new Error();
-      });
+      const response = await deleteObject(imageRef)
+        .then(() => {
+          console.log("Imagem deletada com sucesso:", fileUrl);
+          return {
+            success: true,
+          };
+        })
+        .catch((error) => {
+          console.error("Erro ao deletar imagem:", error);
+          throw new FileDeleteError(
+            `Erro ao deletar imagem: ${
+              error instanceof Error ? error.message : "Unknown error"
+            }`
+          );
+        });
       return response;
     } catch (error) {
       console.error("Erro ao deletar imagem:", error);
-      throw new Error("Erro ao deletar imagem");
+      throw error;
     }
   }
 }
