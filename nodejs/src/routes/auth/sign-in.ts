@@ -30,8 +30,8 @@ export function signIn(app: FastifyTypedInstance) {
     async (request, reply) => {
       const { credential, password } = request.body;
 
-      console.log("[Auth] Sign in attempt with credential:", credential);
-      console.log("[Auth] Sign in attempt with password:", password ? "******" : "not provided");
+      // console.log("[Auth] Sign in attempt with credential:", credential);
+      // console.log("[Auth] Sign in attempt with password:", password ? "******" : "not provided");
 
       const operator = await AuthService.verifyUser(credential, password);
 
@@ -41,7 +41,7 @@ export function signIn(app: FastifyTypedInstance) {
 
       const token = await AuthService.login(operator);
 
-      // console.log("🔑 Token gerado:", token);
+      console.log("🔑 Token gerado:", token);
 
       reply.send({
         token,

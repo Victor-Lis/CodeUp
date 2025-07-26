@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APPID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENTID,
 };
-// console.log("Initializing Firebase with config:", firebaseConfig);
+// // console.log("Initializing Firebase with config:", firebaseConfig);
 
 export const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);

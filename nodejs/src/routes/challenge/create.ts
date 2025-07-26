@@ -11,7 +11,7 @@ export function createChallenge(app: FastifyTypedInstance) {
     "/",
     {
       schema: {
-        summary: "Create a new challenge",
+        summary: "Create a new challenge with a file",
         tags: ["Challenge"],
         body: CreateChallengeSchema,
         response: {

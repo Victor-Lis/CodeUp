@@ -40,7 +40,7 @@ export default function SubmissionForm({
   async function onSubmit(values: z.infer<typeof runFormSchema>) {
     const file = values.file;
 
-    // console.log(
+    // // console.log(
     //   "download data",
     //   file,
     //   `challenges/${challengeId}/runs/`,

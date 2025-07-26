@@ -21,7 +21,7 @@ export class RunService {
       where: { id },
       include: { challenge: { include: { testCases: true } } }
     });
-    console.log(run?.challenge?.testCases);
+    // console.log(run?.challenge?.testCases);
     return run;
   }
 

@@ -11,17 +11,17 @@ export default async function fileUploadHandler(
     const storagePath = `${filePath}${fileName}`;
     const storageRef = ref(storage, storagePath);
 
-    console.log("Iniciando o upload do arquivo:", file);
-    console.log("Caminho do armazenamento:", storagePath);
+    // console.log("Iniciando o upload do arquivo:", file);
+    // console.log("Caminho do armazenamento:", storagePath);
 
     return new Promise((resolve, reject) => {
       uploadBytes(storageRef, file)
         .then((uploadResult) => {
-          console.log("Upload concluído com sucesso:", uploadResult);
+          // console.log("Upload concluído com sucesso:", uploadResult);
           return getDownloadURL(uploadResult.ref);
         })
         .then((downloadURL) => {
-          console.log("URL de download gerada:", downloadURL);
+          // console.log("URL de download gerada:", downloadURL);
           resolve(downloadURL);
         })
         .catch((error) => {

@@ -26,7 +26,7 @@ export const envSchema = z.object({
 });
 
 export const env = envSchema.parse(process.env);
-console.log("Environment variables loaded:", {
+  console.log("Environment variables loaded:", {
   ...env,
   ADMIN_USERNAME: "******", // Mask sensitive information
   ADMIN_PASSWORD: "******", // Mask sensitive information

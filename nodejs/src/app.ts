@@ -1,7 +1,9 @@
 import cors from "@fastify/cors";
+import fastify from "fastify";
+
+import fastifyMultipart from "@fastify/multipart";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
-import fastify from "fastify";
 
 import "@/lib/firebase";
 
@@ -29,12 +31,18 @@ export const app = fastify();
 const theme = new SwaggerTheme();
 const content = theme.getBuffer(SwaggerThemeNameEnum.DARK); // Dark mode for Swagger UI
 
-console.log("Environment:", env);
+// console.log("Environment:", env);
 
 app.register(cors, {
   origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   // credentials: true,
+});
+
+app.register(fastifyMultipart, {
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 10 MB
+  },
 });
 
 app.register(fastifySwagger, {
@@ -43,7 +51,7 @@ app.register(fastifySwagger, {
     produces: ["application/json"],
     info: {
       title: "CodeUp API",
-      description: "API do sistema CodeUp do www.linkedin.com/in/victor-lis-bronzo.",
+      description: "API do sistema CodeUp do <a href='https://www.linkedin.com/in/victor-lis-bronzo.'>Victor Lis Bronzo</a>.",
       version: "1.0.0",
     },
     securityDefinitions: {
@@ -97,5 +105,5 @@ app.register((app) => {
 
 app.listen({ port: env.PORT, host: "0.0.0.0" }).then(() => {
   SeedService.createAdmin();
-  console.log("Server running on port " + env.PORT);
+  // console.log("Server running on port " + env.PORT);
 });

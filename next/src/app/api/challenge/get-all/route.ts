@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth";
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    console.log(session)
+    // console.log(session)
 
     if (
       !session ||

@@ -102,8 +102,8 @@ services:
       - ./nodejs/.env # Carrega variáveis deste arquivo
     depends_on:
       - codeup-postgres-db
-    # environment:
-    # - NODE_ENV=production
+    environment:
+      - CHOKIDAR_USEPOLLING=1
     volumes:
       - ./nodejs:/app
       - /app/node_modules

@@ -14,7 +14,7 @@ export async function DELETE(request: Request) {
     const body = await request.json();
     const { id } = body;
 
-    console.log("Deleting test case with ID:", id);
+    // console.log("Deleting test case with ID:", id);
 
     const testCase = await TestCaseService.deleteTestCase(id);
 

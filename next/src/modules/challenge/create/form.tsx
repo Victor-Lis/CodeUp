@@ -41,7 +41,7 @@ export default function CreateChallengeForm({ onSuccess }: CreateChallengeFormPr
 
     const challengeId = challenges?.length ? challenges[0].id + 1 : 1;
 
-    console.log("Submitting challenge with ID:", challengeId);
+    // console.log("Submitting challenge with ID:", challengeId);
   
     const downloadURL = await fileUploadHandler(
       file,

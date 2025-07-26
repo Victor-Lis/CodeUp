@@ -12,11 +12,11 @@ export const nextAuthOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         try {
-          console.log("[NextAuth] authorize credentials", credentials);
-          console.log("[NextAuth] .env.API_URL", process.env.API_URL);
+          // console.log("[NextAuth] authorize credentials", credentials);
+          // console.log("[NextAuth] .env.API_URL", process.env.API_URL);
 
           const signInUrl = `${process.env.API_URL}/auth/sign-in`;
-          console.log("[NextAuth] fetch url", signInUrl);
+          // console.log("[NextAuth] fetch url", signInUrl);
 
           console.log("Crendentials to be sent:", {
             credential: credentials?.credential,
@@ -31,7 +31,7 @@ export const nextAuthOptions: NextAuthOptions = {
             body: JSON.stringify(credentials),
           })
             .then((res) => {
-              console.log("[NextAuth] authorize response status", res.status);
+              // console.log("[NextAuth] authorize response status", res.status);
               return res;
             })
             .catch((error) => {
@@ -51,7 +51,7 @@ export const nextAuthOptions: NextAuthOptions = {
 
           const user = await response.json();
 
-          console.log("[NextAuth] authorize response", user);
+          // console.log("[NextAuth] authorize response", user);
 
           if (user) {
             return {
@@ -109,4 +109,4 @@ export const nextAuthOptions: NextAuthOptions = {
   },
 };
 
-// console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);
+// // console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);

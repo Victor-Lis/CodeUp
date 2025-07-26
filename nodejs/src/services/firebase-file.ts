@@ -43,14 +43,14 @@ export class FilebaseFileService {
       const date = new Date();
       const formattedDate = date.toISOString().replace(/[:.]/g, "-");
       const filePath = `${path}/${fileName}-${formattedDate}`;
-      // console.log("Caminho do arquivo:", filePath);
+      // // console.log("Caminho do arquivo:", filePath);
 
       const storage = await getStorage(firebase);
       const storageRef = await ref(storage, filePath);
 
-      // console.log("Referência do armazenamento:", storageRef);
+      // // console.log("Referência do armazenamento:", storageRef);
 
-      // console.log("Upload Data: ", {
+      // // console.log("Upload Data: ", {
       //   storageRef,
       //   fileBuffer,
       //   mimeType,
@@ -66,7 +66,7 @@ export class FilebaseFileService {
           (snapshot) => {
             const progress =
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`Upload está ${progress.toFixed(2)}% completo.`);
+            // console.log(`Upload está ${progress.toFixed(2)}% completo.`);
           },
           (error) => {
             reject(
@@ -78,7 +78,7 @@ export class FilebaseFileService {
           async () => {
             try {
               const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              console.log("Arquivo enviado com sucesso. URL:", downloadURL);
+              // console.log("Arquivo enviado com sucesso. URL:", downloadURL);
               resolve(downloadURL); // Retorna a URL de download
             } catch (error) {
               console.error("Erro ao obter URL de download:", error);
@@ -92,7 +92,7 @@ export class FilebaseFileService {
         );
       });
 
-      console.log("Arquivo enviado com sucesso:", uploadedImage);
+      // console.log("Arquivo enviado com sucesso:", uploadedImage);
 
       return {
         fileUrl: uploadedImage as string,
@@ -118,7 +118,7 @@ export class FilebaseFileService {
     try {
       const response = await deleteObject(imageRef)
         .then(() => {
-          console.log("Imagem deletada com sucesso:", fileUrl);
+          // console.log("Imagem deletada com sucesso:", fileUrl);
           return {
             success: true,
           };

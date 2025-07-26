@@ -17,7 +17,7 @@ export default function ChallengeDropdownMenu({
   const [open, setOpen] = useState(false);
 
   const toggleDialog = () => {
-    console.log(`Toggling dropdown menu dialog [${!open ? "Open" : "Closed"}]`);
+    // console.log(`Toggling dropdown menu dialog [${!open ? "Open" : "Closed"}]`);
     setOpen(!open);
   };
 

@@ -10,12 +10,12 @@ export class SeedService {
       },
     });
 
-    console.log("Existing admin check:", existingAdmin);
+    // console.log("Existing admin check:", existingAdmin);
     if (existingAdmin) {
       return;
     }
 
-    console.log("Creating admin user...");
+    // console.log("Creating admin user...");
     await prisma.user.create({
       data: {
         username: env.ADMIN_USERNAME,
