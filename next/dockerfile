@@ -1,72 +1,64 @@
-FROM node:22-alpine AS base
-RUN apk add --no-cache g++ make py3-pip libc6-compat
-RUN npm install -g pnpm
+  # ==============================================================================
+  # Estágio Base: Configura o ambiente Node.js e pnpm
+  # ==============================================================================
+  FROM node:22-alpine AS base
+  # Instala dependências do SO para compilar pacotes nativos
+  RUN apk add --no-cache libc6-compat g++ make py3-pip
+  # Instala o pnpm globalmente
+  RUN npm install -g pnpm
+  # Define o diretório de trabalho
+  WORKDIR /app
 
-WORKDIR /app
-COPY package*.json ./
-EXPOSE 3000
+  # ==============================================================================
+  # Estágio de Desenvolvimento (dev) - Otimizado para hot-reload
+  # ==============================================================================
+  FROM base AS dev
+  ENV NODE_ENV=development
+  # Copia apenas os arquivos de manifesto para aproveitar o cache do Docker
+  COPY package.json pnpm-lock.yaml* ./
+  # Instala TODAS as dependências (incluindo devDependencies)
+  RUN pnpm install
+  # Copia o resto do código (será sobreposto pelo volume do docker-compose)
+  COPY . .
+  # Expõe a porta e define o comando padrão para desenvolvimento
+  EXPOSE 3000
+  CMD ["pnpm", "dev"]
 
-FROM base AS builder
-WORKDIR /app
-COPY . .
-RUN pnpm run build
+  # ==============================================================================
+  # Estágio Builder: Instala dependências e constrói a aplicação para produção
+  # ==============================================================================
+  FROM base AS builder
+  # Copia os arquivos de manifesto de pacote
+  COPY package.json pnpm-lock.yaml* ./
+  # Instala TODAS as dependências necessárias para o build (inclui devDependencies)
+  RUN pnpm install
+  # Agora copia o resto do código fonte
+  COPY . .
+  # Executa o build da aplicação
+  RUN pnpm run build
 
+  # ==============================================================================
+  # Estágio de Produção (production) - Imagem final, leve e segura
+  # ==============================================================================
+  FROM base AS production
+  WORKDIR /app
+  ENV NODE_ENV=production
 
-FROM base AS production
-WORKDIR /app
-# ARG DATABASE_URL
-# ARG NEXTAUTH_SECRET
-# ARG NEXT_PUBLIC_API_BASE_URL
-# ARG API_BASE_URL
-# ARG NEXT_PUBLIC_FIREBASE_APIKEY
-# ARG NEXT_PUBLIC_FIREBASE_AUTHDOMAIN
-# ARG NEXT_PUBLIC_FIREBASE_PROJECTID
-# ARG NEXT_PUBLIC_FIREBASE_STORAGEBUCKET
-# ARG NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID
-# ARG NEXT_PUBLIC_FIREBASE_APPID
-# ARG NEXT_PUBLIC_FIREBASE_MEASUREMENTID
-# ARG NEXT_PUBLIC_VALIDATOR_API_URL
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ENV DATABASE_URL=${DATABASE_URL}
-ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-ENV API_BASE_URL=${API_BASE_URL}
-ENV NEXT_PUBLIC_FIREBASE_APIKEY=${NEXT_PUBLIC_FIREBASE_APIKEY}
-ENV NEXT_PUBLIC_FIREBASE_AUTHDOMAIN=${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
-ENV NEXT_PUBLIC_FIREBASE_PROJECTID=${NEXT_PUBLIC_FIREBASE_PROJECTID}
-ENV NEXT_PUBLIC_FIREBASE_STORAGEBUCKET=${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
-ENV NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID=${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
-ENV NEXT_PUBLIC_FIREBASE_APPID=${NEXT_PUBLIC_FIREBASE_APPID}
-ENV NEXT_PUBLIC_FIREBASE_MEASUREMENTID=${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
-ENV NEXT_PUBLIC_VALIDATOR_API_URL=${NEXT_PUBLIC_VALIDATOR_API_URL}
-ENV NODE_ENV=production
-RUN pnpm ci
+  # Copia os arquivos de manifesto de pacote novamente
+  COPY package.json pnpm-lock.yaml* ./
+  # Instala SOMENTE as dependências de produção para uma imagem final menor
+  RUN pnpm install --prod
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-USER nextjs
+  # Cria um usuário não-root por segurança
+  RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 
+  # Copia os artefatos do build e arquivos necessários do estágio 'builder'
+  COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+  COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+  COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-# COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/public ./public
+  # Define o usuário não-root para executar a aplicação
+  USER nextjs
 
-CMD pnpm start
-
-FROM base AS dev
-ENV NODE_ENV=development
-ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-ENV DATABASE_URL=${DATABASE_URL}
-ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
-ENV API_BASE_URL=${API_BASE_URL}
-ENV NEXT_PUBLIC_FIREBASE_APIKEY=${NEXT_PUBLIC_FIREBASE_APIKEY}
-ENV NEXT_PUBLIC_FIREBASE_AUTHDOMAIN=${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
-ENV NEXT_PUBLIC_FIREBASE_PROJECTID=${NEXT_PUBLIC_FIREBASE_PROJECTID}
-ENV NEXT_PUBLIC_FIREBASE_STORAGEBUCKET=${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
-ENV NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID=${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
-ENV NEXT_PUBLIC_FIREBASE_APPID=${NEXT_PUBLIC_FIREBASE_APPID}
-ENV NEXT_PUBLIC_FIREBASE_MEASUREMENTID=${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
-ENV NEXT_PUBLIC_VALIDATOR_API_URL=${NEXT_PUBLIC_VALIDATOR_API_URL}
-RUN pnpm install 
-COPY . .
-CMD pnpm dev
+  EXPOSE 3000
+  # CMD ["pnpm", "start"]

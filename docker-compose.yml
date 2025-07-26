@@ -57,7 +57,7 @@ services:
   codeup-next:
     container_name: codeup-next
     dns:
-      - 8.8.8.81
+      - 8.8.8.8
       - 8.8.4.4
     build:
       context: ./next
@@ -73,17 +73,20 @@ services:
         NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
         NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
+    restart: always
     env_file:
-    - ./next/.env # Carrega variáveis deste arquivo
+      - ./next/.env
+    environment:
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./next:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - codeup-php
       - codeup-nodejs
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "3033:3000"
-    # command: sh -c "pnpm migrate deploy && pnpm start"
-    restart: always
     networks:
       - local-network
 
@@ -100,13 +103,38 @@ services:
     depends_on:
       - codeup-postgres-db
     # environment:
-      # - NODE_ENV=production
+    # - NODE_ENV=production
+    volumes:
+      - ./nodejs:/app
+      - /app/node_modules
     ports:
-      - "3034:3033"
+      - "3030:3030"
     restart: always
     networks:
       - local-network
-    command: sh -c "pnpm migrate deploy && pnpm dev"
+    command: sh -c "pnpm migrate dev && pnpm dev"
+
+  # codeup-prisma-studio:
+  #   profiles: [dev]
+  #   container_name: codeup-prisma-studio
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   build:
+  #     context: ./nodejs
+  #     target: prisma-studio
+  #   env_file:
+  #     - ./nodejs/.env # Carrega variáveis deste arquivo
+  #   depends_on:
+  #     - codeup-postgres-db
+  #   # environment:
+  #   # - NODE_ENV=production
+  #   ports:
+  #     - "5555:5555"
+  #   restart: always
+  #   networks:
+  #     - local-network
+  #   command: sh -c "pnpm migrate dev && pnpm studio"
 
   codeup-firebase-emulator:
     profiles: [dev]

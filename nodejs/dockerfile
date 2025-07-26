@@ -1,53 +1,42 @@
-#-----------------------------
-# Estágio 1: Dependências Base
-#-----------------------------
-FROM node:22-alpine AS deps
-# Instala o pnpm
+# ==============================================================================
+# Estágio Base: Contém Node.js e pnpm
+# ==============================================================================
+FROM node:22-alpine AS base
 RUN npm install -g pnpm
 WORKDIR /app
 
-# Copia apenas os arquivos de manifesto de pacote
-COPY package.json pnpm-lock.yaml ./
-# Instala TODAS as dependências (dev e prod) para o estágio de build
-RUN pnpm install --frozen-lockfile
+# ==============================================================================
+# Estágio Deps: Instala todas as dependências para aproveitar o cache
+# ==============================================================================
+FROM base AS deps
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
 
-
-#-----------------------------
-# Estágio 2: Builder
-#-----------------------------
-FROM node:22-alpine AS builder
-# Instala o pnpm
-RUN npm install -g pnpm
-WORKDIR /app
-
-# Copia as dependências já instaladas do estágio anterior
-COPY --from=deps /app/node_modules ./node_modules
+# ==============================================================================
+# Estágio Builder: Constrói a aplicação para produção
+# ==============================================================================
+FROM deps AS builder
 # Copia o resto do código fonte
 COPY . .
-
-# Executa o build da aplicação
 RUN pnpm build
 
-
-#-----------------------------
-# Estágio 3: Produção (Runner)
-#-----------------------------
-FROM node:22-alpine AS runner
-# Instala o pnpm
-RUN npm install -g pnpm
+# ==============================================================================
+# Estágio de Produção (Runner)
+# ==============================================================================
+FROM base AS runner
+ENV NODE_ENV=production
 WORKDIR /app
 
 # Cria um usuário e grupo não-root para segurança
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copia os artefatos de build e dependências de produção
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+# Copia apenas os ficheiros de manifesto e instala SOMENTE as dependências de produção
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --prod
 
-# Instala SOMENTE as dependências de produção
-RUN pnpm install --prod --frozen-lockfile
+# Copia os artefactos de build e o schema do Prisma
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 # Gera o cliente Prisma
 RUN pnpm generate
@@ -55,33 +44,24 @@ RUN pnpm generate
 # Muda para o usuário não-root
 USER appuser
 
-# Expõe a porta que a aplicação vai usar
-# EXPOSE 3033
+EXPOSE 3030
+CMD ["pnpm", "start"]
 
-# Comando para iniciar a aplicação em produção
-CMD pnpm start
-
-
-#-----------------------------
-# Estágio 4: Desenvolvimento
-#-----------------------------
-FROM node:22-alpine AS dev
-# Instala o pnpm
-RUN npm install -g pnpm
-WORKDIR /app
-
-# Copia as dependências pré-instaladas
-COPY --from=deps /app/node_modules ./node_modules
-# Copia os arquivos de manifesto
-COPY package.json pnpm-lock.yaml ./
-# Copia o Prisma e gera o cliente
-COPY ./prisma ./prisma
-RUN pnpm generate
-# Copia o restante do código fonte
+# ==============================================================================
+# Estágio de Desenvolvimento
+# ==============================================================================
+FROM deps AS dev
+# Copia o resto do código (será sobreposto pelo volume)
 COPY . .
+EXPOSE 3030
+# O comando será fornecido pelo docker-compose
+CMD ["pnpm", "dev"]
 
-# Expõe a porta
-# EXPOSE 3033
-
-# Comando para iniciar em modo de desenvolvimento
-CMD pnpm dev
+# ==============================================================================
+# Estágio Prisma Studio
+# ==============================================================================
+FROM deps AS prisma-studio
+# Copia o resto do código
+COPY . .
+EXPOSE 5555
+CMD ["pnpm", "studio"]
