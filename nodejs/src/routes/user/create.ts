@@ -11,7 +11,7 @@ export function createUser(app: FastifyTypedInstance) {
     "/",
     {
       schema: {
-        summary: "Create a new operator",
+        summary: "Create a new user",
         tags: ["User"],
         body: CreateUserSchema,
         response: {
@@ -22,14 +22,14 @@ export function createUser(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const { name, email, password, username, isActive, operatorType } = request.body;
+      const { name, email, password, username, isActive, userType } = request.body;
       await UserService.createUser({
         name,
         username,
         email,
         password,
         isActive,
-        operatorType,
+        userType,
       });
       reply.status(201).send({
         message: "User created successfully",

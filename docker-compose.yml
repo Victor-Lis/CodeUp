@@ -84,6 +84,7 @@ services:
       - ./next:/app
       - /app/node_modules
       - /app/.next
+      - ./next/package.json:/app/package.json
     depends_on:
       - codeup-php
       - codeup-nodejs
@@ -107,6 +108,7 @@ services:
     volumes:
       - ./nodejs:/app
       - /app/node_modules
+      - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
     restart: always

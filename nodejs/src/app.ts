@@ -25,6 +25,7 @@ import { authRoutes } from "./routes/auth";
 import { guestRoutes } from "./routes/_guest";
 import { userRoutes } from "./routes/user";
 import { challengeRoutes } from "./routes/challenge";
+import { uploadRoutes } from "./routes/uploadRoutes";
 
 export const app = fastify();
 
@@ -40,15 +41,14 @@ app.register(cors, {
 });
 
 app.register(fastifyMultipart, {
+  // attachFieldsToBody: true, // Habilita o processamento dos campos no request.body
   limits: {
-    fileSize: 100 * 1024 * 1024, // 10 MB
+    fileSize: 100 * 1024 * 1024, // 100 MB
   },
 });
 
 app.register(fastifySwagger, {
   swagger: {
-    consumes: ["application/json"],
-    produces: ["application/json"],
     info: {
       title: "CodeUp API",
       description: "API do sistema CodeUp do <a href='https://www.linkedin.com/in/victor-lis-bronzo.'>Victor Lis Bronzo</a>.",
@@ -95,6 +95,7 @@ app.addHook("onRequest", async (request) => {
 
 app.register(authRoutes, { prefix: "/auth" });
 app.register(guestRoutes);
+app.register(uploadRoutes);
 
 app.register((app) => {
   app.addHook("preHandler", authenticate);
@@ -105,5 +106,5 @@ app.register((app) => {
 
 app.listen({ port: env.PORT, host: "0.0.0.0" }).then(() => {
   SeedService.createAdmin();
-  // console.log("Server running on port " + env.PORT);
+  console.log("Server running on port " + env.PORT);
 });
