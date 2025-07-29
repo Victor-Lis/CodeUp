@@ -1,5 +1,5 @@
 import prisma from "@/config/prisma";
-import { NotFound } from "@/errors/not-found";
+import { NotFoundError } from "@/errors/not-found";
 import { UpdateUserType } from "@/schemas/user/update";
 import { CreateUserType } from "@/schemas/user/create";
 import { AuthService } from "./auth";
@@ -25,7 +25,7 @@ export class UserService {
       where: { username },
     });
     if (!user) {
-      throw new NotFound("User not found");
+      throw new NotFoundError("User not found");
     }
     return user;
   }
@@ -35,7 +35,7 @@ export class UserService {
       where: { id },
     });
     if (!user) {
-      throw new NotFound();
+      throw new NotFoundError();
     }
     return user;
   }

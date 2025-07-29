@@ -1,5 +1,5 @@
 import { FastifyTypedInstance } from "@/types/fastify";
-import { parseMultipartForm } from "@/utils/parseMultipartForm";
+import { parseAndValidateMultipart } from "@/utils/parseAndValidateMultipart";
 import { MultipartFile } from "@fastify/multipart";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -24,7 +24,14 @@ export async function uploadRoutes(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const parts = request.parts();
-      const { file, fields } = await parseMultipartForm(parts);
+      const { file, fields } = await parseAndValidateMultipart(
+        parts,
+        z.object({
+          description: z.string().optional(),
+          tags: z.array(z.string()).optional(),
+        })
+      );
+
       console.log("Campos recebidos:", fields);
       console.log("Ficheiro recebido:", file?.filename);
 

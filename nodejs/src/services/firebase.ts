@@ -7,46 +7,40 @@ import {
   uploadBytesResumable,
   deleteObject,
 } from "firebase/storage";
-import { NotFound } from "@/errors/not-found";
-import { FirebaseFileType } from "@/schemas/firebase-file";
-import { FileUploadError } from "@/errors/file-upload-error";
-import { FileDownloadError } from "@/errors/file-download-error";
-import { FileDeleteError } from "@/errors/file-delete-error";
+import type { MultipartFile } from "@fastify/multipart";
 
-type FirebaseFileServiceResponse = {
+import { NotFoundError } from "@/errors/not-found";
+import { FileUploadError } from "@/errors/file-upload";
+import { FileDownloadError } from "@/errors/file-download";
+import { FileDeleteError } from "@/errors/file-delete";
+
+type FirebaseServiceResponse = {
   success: boolean;
 };
 
-export class FilebaseFileService {
+export class FilebaseService {
   static async uploadImage({
     path,
     file,
   }: {
     path: string;
-    file: FirebaseFileType;
-  }): Promise<(FirebaseFileServiceResponse & { fileUrl: string }) | null> {
+    file: MultipartFile;
+  }): Promise<(FirebaseServiceResponse & { fileUrl: string }) | null> {
     try {
-      const fileData = file.buffer;
-      const fileName = file.originalname;
+      const fileBuffer = await file.toBuffer();
+      const fileName = file.filename;
+      const mimeType = file.mimetype;
 
-      if (!fileData || !fileName) {
-        throw new Error("Dados do arquivo não fornecidos.");
+      if (!fileBuffer || !fileName) {
+        throw new FileUploadError("File data or name not provided.");
       }
-
-      const mimeType = file.mimetype || "application/pdf";
-
-      const base64Data = fileData; // se já está em base64 puro
-      const fileBuffer = Buffer.isBuffer(file.buffer)
-          ? file.buffer
-           : Buffer.from(file.buffer as string, "base64");
 
       const date = new Date();
       const formattedDate = date.toISOString().replace(/[:.]/g, "-");
       const filePath = `${path}/${fileName}-${formattedDate}`;
-      // // console.log("Caminho do arquivo:", filePath);
 
-      const storage = await getStorage(firebase);
-      const storageRef = await ref(storage, filePath);
+      const storage = getStorage(firebase);
+      const storageRef = ref(storage, filePath);
 
       // // console.log("Referência do armazenamento:", storageRef);
 
@@ -108,9 +102,9 @@ export class FilebaseFileService {
     fileUrl,
   }: {
     fileUrl: string;
-  }): Promise<FirebaseFileServiceResponse> {
+  }): Promise<FirebaseServiceResponse> {
     if (!fileUrl) {
-      throw new NotFound("Imagem não encontrada");
+      throw new NotFoundError("Imagem não encontrada");
     }
 
     const storage = getStorage(firebase);
