@@ -1,6 +1,7 @@
+import { multipartFileSchema } from "@/schemas/_global/multipartFile";
 import { UpdateChallengeSchema } from "@/schemas/challenge/update";
 import { ChallengeService } from "@/services/challenge";
-import { FilebaseFileService } from "@/services/firebase-file";
+import { FilebaseService } from "@/services/firebase";
 
 import { FastifyTypedInstance } from "@/types/fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -13,10 +14,11 @@ export function updateChallenge(app: FastifyTypedInstance) {
       schema: {
         summary: "Update an existing challenge",
         tags: ["Challenge"],
+        consumes: ["multipart/form-data"],
         params: z.object({
           id: z.coerce.number(),
         }),
-        body: UpdateChallengeSchema,
+        // body: UpdateChallengeSchema,
         response: {
           200: z.object({
             message: z.string(),
@@ -27,7 +29,6 @@ export function updateChallenge(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const { id } = request.params;
-      const { file } = request.body;
 
       const existingChallenge = await ChallengeService.getChallengeById(id);
       if (!existingChallenge) {
@@ -36,12 +37,15 @@ export function updateChallenge(app: FastifyTypedInstance) {
         });
       }
 
+      const requestFile = await request.file();
+      const file = multipartFileSchema.parse(requestFile);
+
       if (file) {
-        await FilebaseFileService.deleteImage({
+        await FilebaseService.deleteImage({
           fileUrl: existingChallenge.fileUrl,
         });
 
-        const firebaseFile = await FilebaseFileService.uploadImage({
+        const firebaseFile = await FilebaseService.uploadImage({
           path: `challenges/${id}/`,
           file,
         });
@@ -53,7 +57,7 @@ export function updateChallenge(app: FastifyTypedInstance) {
         }
 
         const challenge = await ChallengeService.updateChallenge(id, {
-          ...request.body,
+          file,
           fileUrl: firebaseFile?.fileUrl,
         });
 

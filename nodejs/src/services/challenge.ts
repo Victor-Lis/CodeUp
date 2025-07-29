@@ -1,5 +1,5 @@
 import prisma from "@/config/prisma";
-import { NotFound } from "@/errors/not-found";
+import { NotFoundError } from "@/errors/not-found";
 import { UpdateChallengeType } from "@/schemas/challenge/update";
 import { CreateChallengeType } from "@/schemas/challenge/create";
 import { AuthService } from "./auth";
@@ -34,7 +34,7 @@ export class ChallengeService {
       where: { id },
     });
     if (!challenge) {
-      throw new NotFound();
+      throw new NotFoundError();
     }
     return challenge;
   }

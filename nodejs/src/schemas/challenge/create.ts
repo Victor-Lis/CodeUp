@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { FirebaseFileSchema } from "../firebase-file";
+import { multipartFileSchema } from "../_global/multipartFile";
 
 export const CreateChallengeSchema = z.object({
-  file: FirebaseFileSchema
+  file: multipartFileSchema,
 });
 
 export type CreateChallengeType = z.infer<typeof CreateChallengeSchema>;

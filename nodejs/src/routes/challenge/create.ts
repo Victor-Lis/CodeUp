@@ -1,6 +1,6 @@
-import { CreateChallengeSchema } from "@/schemas/challenge/create";
+import { multipartFileSchema } from "@/schemas/_global/multipartFile";
 import { ChallengeService } from "@/services/challenge";
-import { FilebaseFileService } from "@/services/firebase-file";
+import { FilebaseService } from "@/services/firebase";
 
 import { FastifyTypedInstance } from "@/types/fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
@@ -13,7 +13,8 @@ export function createChallenge(app: FastifyTypedInstance) {
       schema: {
         summary: "Create a new challenge with a file",
         tags: ["Challenge"],
-        body: CreateChallengeSchema,
+        consumes: ["multipart/form-data"],
+        // body: CreateChallengeSchema,
         response: {
           201: z.object({
             message: z.string(),
@@ -23,11 +24,13 @@ export function createChallenge(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const { file } = request.body;
+      const requestFile = await request.file();
+      const file = multipartFileSchema.parse(requestFile);
 
-      const nextChallengeNumber = await ChallengeService.getNextChallengeNumber();
+      const nextChallengeNumber =
+        await ChallengeService.getNextChallengeNumber();
 
-      const firebaseFile = await FilebaseFileService.uploadImage({
+      const firebaseFile = await FilebaseService.uploadImage({
         path: `challenges/${nextChallengeNumber}/`,
         file,
       });
@@ -39,7 +42,7 @@ export function createChallenge(app: FastifyTypedInstance) {
       }
 
       const challenge = await ChallengeService.createChallenge({
-        ...request.body,
+        file,
         fileUrl: firebaseFile?.fileUrl,
       });
 
