@@ -1,14 +1,15 @@
 import { FastifyInstance } from "fastify";
 import { ZodError } from "zod";
-import { NotFound } from "./not-found";
+import { NotFoundError } from "./not-found";
 import { InvalidCredentials } from "./invalid-credentials";
 import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
 } from "fastify-type-provider-zod";
-import { FileDownloadError } from "./file-download-error";
-import { FileUploadError } from "./file-upload-error";
-import { FileDeleteError } from "./file-delete-error";
+import { FileDownloadError } from "./file-download";
+import { FileUploadError } from "./file-upload";
+import { FileDeleteError } from "./file-delete";
+import { MultipartValidationError } from "./multipart-validation";
 
 type FastifyErrorHandler = FastifyInstance["errorHandler"];
 
@@ -50,7 +51,7 @@ export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
     });
   }
 
-  if (error instanceof NotFound) {
+  if (error instanceof NotFoundError) {
     return reply.status(400).send({
       message: error.message,
       details: {
@@ -81,6 +82,17 @@ export const errorHandler: FastifyErrorHandler = (error, request, reply) => {
       message: error.message,
       details: {
         issues: error.validation,
+        method: request.method,
+        url: request.url,
+      },
+    });
+  }
+
+  if (error instanceof MultipartValidationError) {
+    return reply.status(400).send({
+      message: error.message,
+      details: {
+        issues: error.issues,
         method: request.method,
         url: request.url,
       },
