@@ -1,6 +1,18 @@
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { jwtDecode } from "jwt-decode";
+
+// Defina um tipo para o payload do seu token de backend
+interface BackendTokenPayload {
+  user: {
+    id: number;
+    name: string;
+    username: string;
+    type: string;
+  };
+  iat: number;
+  exp: number;
+}
 
 export const nextAuthOptions: NextAuthOptions = {
   providers: [
@@ -10,54 +22,24 @@ export const nextAuthOptions: NextAuthOptions = {
         credential: { label: "username", type: "text" },
         password: { label: "password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials): Promise<User | null> {
         try {
-          // console.log("[NextAuth] authorize credentials", credentials);
-          // console.log("[NextAuth] .env.API_URL", process.env.API_URL);
-
           const signInUrl = `${process.env.API_URL}/auth/sign-in`;
-          // console.log("[NextAuth] fetch url", signInUrl);
-
-          console.log("Crendentials to be sent:", {
-            credential: credentials?.credential,
-            password: credentials?.password,
-          });
-
           const response = await fetch(signInUrl, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(credentials),
-          })
-            .then((res) => {
-              // console.log("[NextAuth] authorize response status", res.status);
-              return res;
-            })
-            .catch((error) => {
-              console.error("[NextAuth] authorize fetch error", error);
-              return null;
-            });
-
-          if (!response) {
-            console.error("[NextAuth] authorize fetch failed");
-            return null;
-          }
+          });
 
           if (!response.ok) {
             console.error("[NextAuth] authorize error", response.statusText);
             return null;
           }
 
-          const user = await response.json();
+          const userAuth = await response.json();
 
-          // console.log("[NextAuth] authorize response", user);
-
-          if (user) {
-            return {
-              ...user,
-              sessionVersion: user.sessionVersion,
-            };
+          if (userAuth && userAuth.token) {
+            return userAuth as User;
           }
 
           return null;
@@ -68,45 +50,45 @@ export const nextAuthOptions: NextAuthOptions = {
       },
     }),
   ],
+
   pages: {
     signIn: "/login",
   },
+
   session: {
     strategy: "jwt",
-    maxAge: 12 * 60 * 60, // 12 horas
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
+
   callbacks: {
     async jwt({ token, user }: any) {
-      if (user) {
-        // Na primeira vez (login), salvamos os dados do 'authorize' no token do NextAuth
-        token.user = user.user;
-        token.accessToken = user.token;
+      // console.log("[NextAuth] JWT Callback", { token, user });
+      if (user && user.token) {
+        const backendToken = user.token as string;
+        const decoded = jwtDecode<BackendTokenPayload>(backendToken);
+
+        token.id = decoded.user.id;
+        token.name = decoded.user.name;
+        token.username = decoded.user.username;
+        token.type = decoded.user.type;
+        token.accessToken = backendToken;
       }
+
       return token;
     },
-    async session({ session, token }: any) {
-      // O 'token.accessToken' é a nossa fonte segura de dados, vinda do backend.
-      if (token.accessToken) {
-        // Decodificamos o token do backend para obter o payload.
-        const decodedToken = jwtDecode<{
-          user: { id: number; username: string; name: string; type: string };
-        }>(token.accessToken);
 
-        // Montamos o objeto 'user' da sessão com o formato desejado.
-        session.user = {
-          sub: decodedToken.user.id, // 'sub' (subject) geralmente é o ID do usuário
-          username: decodedToken.user.username,
-          name: decodedToken.user.name,
-          type: decodedToken.user.type,
-        };
-
-        // Também passamos o token de acesso para o front-end.
-        session.accessToken = token.accessToken;
+    // O callback 'session' é chamado DEPOIS do 'jwt'.
+    async session({ session, token }) {
+      // console.log("[NextAuth] Session Callback", { session, token });
+      if (session.user && token.id) {
+        session.user.id = token.id as number;
+        session.user.name = token.name as string;
+        session.user.username = token.username as string;
+        session.user.type = token.type as string;
       }
 
+      session.accessToken = token.accessToken as string;
       return session;
     },
   },
 };
-
-// // console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);

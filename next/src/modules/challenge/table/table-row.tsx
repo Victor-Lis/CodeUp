@@ -25,16 +25,18 @@ export default function ChallengeTableRow({
           Ver Desafio
         </a>
       </TableCell>
-      <TableCell>{format(challenge.createdAt, "dd/MM/yyyy")}</TableCell>
+      <TableCell>{format(challenge.updatedAt, "dd/MM/yyyy")}</TableCell>
       <TableCell className="text-center">
-        <Badge variant="secondary">{challenge.runs.length}</Badge>
+        <Badge variant="secondary">{challenge.runs?.length}</Badge>
       </TableCell>
       <TableCell className="flex items-center justify-end py-3 gap-3">
         <Link href={`/challenge/${challenge.id}/test-cases`}>
           <TestTubeIcon className="h-5.5 w-5.5" />
         </Link>
         <UpdateChallengeDialog challenge={challenge} />
-        {challenge.runs.length > 0 ? null : <DeleteChallengeDialog challenge={challenge} />}
+        {challenge.runs?.length && challenge.runs?.length > 0 ? null : (
+          <DeleteChallengeDialog challenge={challenge} />
+        )}
       </TableCell>
     </TableRow>
   );

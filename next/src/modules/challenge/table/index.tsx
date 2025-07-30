@@ -9,7 +9,7 @@ export default function ChallengeTable() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center">
         <CircleNotchIcon className="h-8 w-8 animate-spin" />
       </div>
     );

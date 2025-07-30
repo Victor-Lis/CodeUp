@@ -100,8 +100,8 @@ app.register(uploadRoutes);
 app.register((app) => {
   app.addHook("preHandler", authenticate);
 
-  app.register(challengeRoutes, { prefix: "/challenges" });
-  app.register(userRoutes, { prefix: "/users" });
+  app.register(challengeRoutes, { prefix: "/challenge" });
+  app.register(userRoutes, { prefix: "/user" });
 });
 
 app.listen({ port: env.PORT, host: "0.0.0.0" }).then(() => {

@@ -5,9 +5,10 @@ interface ChallengeType {
   bucketPath: string;
 
   createdAt: Date;
+  updatedAt: Date;
 
   run: RunType | null;
-  runs: RunType[];
+  runs: RunType[] | undefined;
 
   testCases: TestCaseType[];
 }
