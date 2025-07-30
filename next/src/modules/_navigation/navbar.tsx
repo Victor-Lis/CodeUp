@@ -18,9 +18,10 @@ function Navbar() {
   const session = useSession();
 
   const isAdmin = () => {
+    // console.log(session?.data?.user);
     if (session.status === "authenticated") {
       const user = session.data?.user;
-      return user?.role === "ADMIN";
+      return user?.type === "ADMIN";
     }
     return false;
   };
@@ -44,7 +45,7 @@ function Navbar() {
                 <MenubarSeparator />
                 <MenubarLabel>Admin</MenubarLabel>
                 <MenubarItem
-                  className="ml-3"
+                  className="ml-3 cursor-pointer"
                   onClick={() => router.push("/challenge")}
                 >
                   <BookBookmarkIcon className="mb-[0.25px]" />

@@ -5,5 +5,5 @@ interface UserType {
   emailVerified: DateTime;
   password: string;
   image: string;
-  role: "USER" | "ADMIN";
+  type: "USER" | "ADMIN";
 }

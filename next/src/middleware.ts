@@ -11,7 +11,11 @@ import { jwtDecode } from "jwt-decode";
 // }
 
 interface Token {
-  user: UserType;
+  id: number;
+  name: string;
+  username: string;
+  type: string;
+  accessToken: string;
 }
 
 export const config = {
@@ -25,16 +29,16 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const token = (await getToken({ req })) as Token | null;
+  console.log("Token:", token);
 
   if (!token && !publicRoutes.includes(pathname)) {
     // console.log("No token found, redirecting to login");
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
   }
 
-  const user = token?.user;
-  // console.log("User found:", user);
+  const userRole = token?.type;
 
-  if (adminRoutes.includes(pathname) && user?.role !== "ADMIN") {
+  if (adminRoutes.includes(pathname) && userRole !== "ADMIN") {
     // console.log("User is not admin, redirecting to dashboard");
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
   }

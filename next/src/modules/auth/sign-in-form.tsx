@@ -53,7 +53,7 @@ export function SignInForm() {
         password: values.password,
         redirect: true,
         callbackUrl: "/dashboard",
-      });
+      })
 
       if (result?.error) {
         setError("Credenciais inválidas. Tente novamente.");
