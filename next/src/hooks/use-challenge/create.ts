@@ -4,14 +4,19 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export function useCreateChallenge() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Omit<CreateChallengeType, "userId">) => {
-      const response = await api.post("/challenge/create", data);
+    mutationFn: async (data: CreateChallengeType) => {
+      const formData = new FormData();
+      formData.append("file", data.file);
+      
+      const response = await api.post("/challenge", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     },
-    onSettled: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["challenges", data.challengeId],
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["challenges"] });
     },
   });
 }

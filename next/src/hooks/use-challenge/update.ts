@@ -9,9 +9,16 @@ export function useUpdateChallenge() {
       data,
     }: {
       id: number;
-      data: Partial<ChallengeType>;
+      data: CreateChallengeType;
     }) => {
-      const response = await api.put(`/challenge/update?id=${id}`, data);
+      const formData = new FormData();
+      formData.append("file", data.file);
+
+      const response = await api.put(`/challenge/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     },
     onSettled: (data) => {

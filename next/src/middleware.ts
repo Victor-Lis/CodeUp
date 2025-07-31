@@ -29,7 +29,7 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   const token = (await getToken({ req })) as Token | null;
-  console.log("Token:", token);
+  // console.log("Token:", token);
 
   if (!token && !publicRoutes.includes(pathname)) {
     // console.log("No token found, redirecting to login");

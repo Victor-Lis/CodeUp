@@ -5,7 +5,7 @@ export function useDeleteChallenge() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await api.delete(`/challenge/delete`, { data: { id } });
+      const response = await api.delete(`/challenge/${id}`);
       return response.data;
     },
     onSettled: (data) => {

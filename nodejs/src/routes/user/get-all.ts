@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export function getUsers(app: FastifyTypedInstance) {
   app.withTypeProvider<ZodTypeProvider>().get(
-    "/",
+    "s/",
     {
       schema: {
         summary: "Retrieve all operators",

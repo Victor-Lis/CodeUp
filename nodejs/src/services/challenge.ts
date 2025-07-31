@@ -2,7 +2,6 @@ import prisma from "@/config/prisma";
 import { NotFoundError } from "@/errors/not-found";
 import { UpdateChallengeType } from "@/schemas/challenge/update";
 import { CreateChallengeType } from "@/schemas/challenge/create";
-import { AuthService } from "./auth";
 
 export class ChallengeService {
   static async getNextChallengeNumber() {
@@ -50,5 +49,18 @@ export class ChallengeService {
       },
     });
     return challenge;
+  }
+
+  static async deleteChallenge(id: number) {
+    const challenge = await prisma.challenge.findUnique({
+      where: { id },
+    });
+    if (!challenge) {
+      throw new NotFoundError();
+    }
+    await prisma.challenge.delete({
+      where: { id },
+    });
+    return { message: "Challenge deleted successfully" };
   }
 }

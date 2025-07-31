@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link"; 
+import Link from "next/link";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr"; // Opcional: Para um ícone bonito no botão
 
 export default function Home() {
@@ -17,11 +17,11 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 items-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-6xl animate-fade-in-down">
-            Sua jornada no mundo dev melhorará aqui.
+            Sua jornada no mundo dev cresce aqui.
           </h1>
           <p className="max-w-2xl text-lg text-gray-300 animate-fade-in-up">
             Acesse a plataforma para resolver problemas de programação e
-            melhorar suas habilidades.
+            aprimorar suas habilidades.
           </p>
         </div>
 

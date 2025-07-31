@@ -30,7 +30,7 @@ export default function UpdateChallengeForm({
   const form = useForm<z.infer<typeof challengeFormSchema>>({
     resolver: zodResolver(challengeFormSchema),
     defaultValues: {
-      file: new File([""], "", { type: "text/x-python" }),
+      file: new File([""], "", { type: "application/pdf" }),
     },
   });
 
@@ -41,17 +41,11 @@ export default function UpdateChallengeForm({
   async function onSubmit(values: z.infer<typeof challengeFormSchema>) {
     const file = values.file;
 
-    const downloadURL = await fileUploadHandler(
-      file,
-      `challenges/${challenge.id}/`,
-      `challenge-${challenge.id}` || "anonymous"
-    );
-
     update(
       {
         id: challenge.id,
         data: {
-          fileUrl: downloadURL,
+          file,
         },
       },
       {

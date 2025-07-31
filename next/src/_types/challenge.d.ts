@@ -2,7 +2,6 @@ interface ChallengeType {
   id: number;
 
   fileUrl: string;
-  bucketPath: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -14,7 +13,7 @@ interface ChallengeType {
 }
 
 interface CreateChallengeType {
-  fileUrl: string;
+  file: File;
 }
 
 // model Challenge {

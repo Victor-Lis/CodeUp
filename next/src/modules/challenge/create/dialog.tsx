@@ -28,7 +28,8 @@ export default function CreateChallengeDialog() {
         <DialogHeader>
           <DialogTitle>Novo Desafio</DialogTitle>
           <DialogDescription>
-            Preencha os detalhes para criar um novo desafio.
+            Preencha os detalhes para criar um novo desafio. 
+            Com isso, as pessoas poderão submeter suas soluções.
           </DialogDescription>
         </DialogHeader>
         <CreateChallengeForm onSuccess={toggleOpen} />

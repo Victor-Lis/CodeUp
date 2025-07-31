@@ -5,7 +5,7 @@ export function useGetChallenges(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["challenges"],
     queryFn: async () => {
-      const response = await api.get<ChallengeType[]>(`/challenge`);
+      const response = await api.get<ChallengeType[]>(`/challenges/`);
       return response.data;
     },
     enabled: options?.enabled ?? true,
