@@ -4,7 +4,7 @@ import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { CircleNotchIcon } from "@phosphor-icons/react"
 
 import { TestCaseTableRow } from "./table-row";
-import { useGetTestCases } from "@/hooks/use-test-case/get-all";
+import { useGetTestCases } from "@/hooks/use-test-case/get-by-challenge";
 import { redirect, useParams } from "next/navigation";
 
 export function TestCaseTableBody() {

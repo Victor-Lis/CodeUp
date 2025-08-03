@@ -5,12 +5,15 @@ export function useCreateTestCase() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: CreateTestCaseType) => {
-      const response = await api.post(`/test-case/create?challengeId=${data.challengeId}`, data);
+      const response = await api.post(`/test-case`, data);
       return response.data;
     },
     onSettled: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["test-cases"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["challenges"],
       });
     },
   });

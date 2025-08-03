@@ -11,7 +11,7 @@ export function useUpdateTestCase() {
       id: number;
       data: Partial<TestCaseType>;
     }) => {
-      const response = await api.put(`/test-case/update?id=${id}`, data);
+      const response = await api.put(`/test-case/${id}`, data);
       return response.data;
     },
     onSettled: (data) => {

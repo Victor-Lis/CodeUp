@@ -9,10 +9,7 @@ export function useGetTestCases(
     queryKey: ["test-cases", challengeId],
     queryFn: async () => {
       const response = await api.get<TestCaseType[]>(
-        `/test-case/get-by-challenge`,
-        {
-          params: { challengeId },
-        }
+        `/test-cases/challenge/${challengeId}`,
       );
       return response.data;
     },

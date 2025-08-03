@@ -5,7 +5,7 @@ export function useDeleteTestCase() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await api.delete(`/test-case/delete`, { data: { id } });
+      const response = await api.delete(`/test-case/${id}`);
       return response.data;
     },
     onSettled: (data) => {
