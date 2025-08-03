@@ -13,7 +13,7 @@ interface RunType {
 }
 
 interface CreateRunType {
-  fileUrl: string;
+  file: File;
   challengeId: number;
-  userId: string;
+  approved?: boolean;
 }

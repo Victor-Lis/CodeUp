@@ -10,9 +10,17 @@ export function useUpdateRun() {
       data,
     }: {
       id: number;
-      data: Partial<RunType>;
+      data: Partial<Omit<CreateRunType, "challengeId">>;
     }) => {
-      const response = await api.put(`/run/update?id=${id}`, data);
+      const formData = new FormData();
+      data?.file && formData.append("file", data.file);
+      data?.approved && formData.append("approved", String(data.approved));
+
+      const response = await api.put(`/run/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     },
     onSettled: (data) => {

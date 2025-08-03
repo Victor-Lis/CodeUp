@@ -32,9 +32,7 @@ export class RunService {
         approved: data.approved,
         fileUrl: data.fileUrl,
       }
-    }).catch((error) => {
-      console.error("Error updating run:", error);
-    });
+    })
     return run;
   }
 
