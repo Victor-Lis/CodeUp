@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useUpdateRun } from "@/hooks/use-run/update";
 import { format } from "date-fns";
 import {
   Card,
@@ -18,66 +16,36 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import SubmissionForm from "./submit-form";
-import {
-  CertificateIcon,
-  FileTextIcon
-} from "@phosphor-icons/react";
-import { validateRun } from "@/hooks/use-run/handle-validate";
+import { CertificateIcon, FileTextIcon } from "@phosphor-icons/react";
 import RunStatus from "./run-status";
-
-// Tipagem das props
-interface ChallengeType {
-  id: number;
-  fileUrl: string;
-  bucketPath: string;
-  createdAt: Date;
-  run: RunType | null;
-}
-
-interface RunType {
-  id: number;
-  approved: boolean;
-  fileUrl: string;
-  challengeId: number;
-  userId: string;
-  updatedAt: Date;
-  createdAt: Date;
-}
+import { useValidateRun } from "@/hooks/use-run/validate";
 
 export default function ChallengeCard({
   challenge,
 }: {
   challenge: ChallengeType;
 }) {
-  const [isValidating, setIsValidating] = useState(false);
-  const { mutate } = useUpdateRun();
+  const { mutate: validateRun, isPending } = useValidateRun();
 
-  // Variáveis para simplificar a lógica no JSX
-  const hasRun = !!challenge.run;
-  const isApproved = challenge.run?.approved === true;
-
-  const handleValidateRun = async (id: number) => {
-    setIsValidating(true);
-    const response = await validateRun(id);
-    if (response?.approved) {
-      mutate({
-        id,
-        data: { approved: response.approved },
-      });
-    }
-    setIsValidating(false);
-  };
+  const hasRun = () => !!challenge.run;
+  const isApproved = () => challenge.run?.approved === true;
 
   return (
     <Card key={challenge.id} className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-xl flex items-center">
           <span>Desafio #{challenge.id}</span>
-          <RunStatus
-            run={challenge.run}
-            onRetry={handleValidateRun}
-            isLoading={isValidating}
-          />
+          {hasRun() && (
+            <RunStatus
+              run={challenge.run}
+              onRetry={() => {
+                if (challenge.run) {
+                  validateRun({ id: challenge.run.id });
+                }
+              }}
+              isLoading={isPending}
+            />
+          )}
         </CardTitle>
         <CardDescription>
           Criado em: {format(new Date(challenge.createdAt), "dd/MM/yyyy")}
@@ -97,21 +65,21 @@ export default function ChallengeCard({
             </Button>
           </a>
           {challenge.run?.fileUrl && (
-          <a
-            href={challenge.run?.fileUrl}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button variant="outline" className="w-full sm:w-auto">
-              <FileTextIcon className="mr-2 h-4 w-4" />
-              Baixar solução
-            </Button>
-          </a>
+            <a
+              href={challenge.run?.fileUrl}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="outline" className="w-full sm:w-auto">
+                <FileTextIcon className="mr-2 h-4 w-4" />
+                Baixar solução
+              </Button>
+            </a>
           )}
         </div>
 
-        {isApproved ? (
+        {isApproved() ? (
           <div className="flex items-center justify-center text-center p-4 border-2 border-dashed border-green-400 rounded-lg my-2">
             <CertificateIcon className="h-8 w-8 text-green-500 mr-4" />
             <div>
@@ -128,7 +96,7 @@ export default function ChallengeCard({
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value={`item-${challenge.id}`}>
               <AccordionTrigger className="text-primary hover:no-underline font-semibold">
-                {hasRun ? "Submeter uma nova versão" : 'Submeter "Run"'}
+                {hasRun() ? "Submeter uma nova versão" : 'Submeter "Run"'}
               </AccordionTrigger>
               <AccordionContent>
                 <SubmissionForm

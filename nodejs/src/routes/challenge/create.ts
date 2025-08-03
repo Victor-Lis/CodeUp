@@ -30,7 +30,7 @@ export function createChallenge(app: FastifyTypedInstance) {
       const nextChallengeNumber =
         await ChallengeService.getNextChallengeNumber();
 
-      const firebaseFile = await FilebaseService.uploadImage({
+      const firebaseFile = await FilebaseService.uploadFile({
         path: `challenges/${nextChallengeNumber}/`,
         file,
       });
@@ -42,7 +42,6 @@ export function createChallenge(app: FastifyTypedInstance) {
       }
 
       const challenge = await ChallengeService.createChallenge({
-        file,
         fileUrl: firebaseFile?.fileUrl,
       });
 

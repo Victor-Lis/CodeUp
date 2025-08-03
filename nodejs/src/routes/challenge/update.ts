@@ -41,11 +41,11 @@ export function updateChallenge(app: FastifyTypedInstance) {
       const file = multipartFileSchema.parse(requestFile);
 
       if (file) {
-        await FilebaseService.deleteImage({
+        await FilebaseService.deleteFile({
           fileUrl: existingChallenge.fileUrl,
         });
 
-        const firebaseFile = await FilebaseService.uploadImage({
+        const firebaseFile = await FilebaseService.uploadFile({
           path: `challenges/${id}/`,
           file,
         });

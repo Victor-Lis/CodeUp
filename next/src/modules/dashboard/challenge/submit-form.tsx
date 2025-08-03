@@ -39,43 +39,56 @@ export default function SubmissionForm({
 
   async function onSubmit(values: z.infer<typeof runFormSchema>) {
     const file = values.file;
-
-    // // console.log(
-    //   "download data",
-    //   file,
-    //   `challenges/${challengeId}/runs/`,
-    //   session.data?.user?.id || "anonymous"
-    // );
-
-    const downloadURL = await fileUploadHandler(
-      file,
-      `challenges/${challengeId}/runs/`,
-      session.data?.user?.id || "anonymous"
-    );
+    console.log("Submitting file:", file);
 
     if (run && run.id) {
-      update({
-        id: run.id,
-        data: {
-          fileUrl: downloadURL,
+      update(
+        {
+          id: run.id,
+          data: {
+            file: file,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            toast.success(
+              `Submissão para o Desafio #${challengeId} atualizada!`,
+              {
+                autoClose: 5000,
+              }
+            );
+            form.reset();
+          },
+          onError: (error) => {
+            toast.error(`Erro ao atualizar a submissão: ${error.message}`, {
+              autoClose: 5000,
+            });
+            form.reset();
+          },
+        }
+      );
     } else {
-      create({
-        fileUrl: downloadURL,
-        challengeId: challengeId,
-      });
+      create(
+        {
+          file: file,
+          challengeId: challengeId,
+        },
+        {
+          onSuccess: () => {
+            toast.success(`Submissão para o Desafio #${challengeId} criada!`, {
+              autoClose: 5000,
+            });
+            form.reset();
+          },
+          onError: (error) => {
+            toast.error(`Erro ao criar a submissão: ${error.message}`, {
+              autoClose: 5000,
+            });
+            form.reset();
+          },
+        }
+      );
     }
-    toast.success(`Submissão para o Desafio #${challengeId} enviada!\n`, {
-      autoClose: 5000,
-    });
-    toast.info(
-      "Clique em validar para verificar se a submissão está correta!",
-      {
-        autoClose: 10000,
-      }
-    );
-    form.reset();
   }
 
   if (session.status === "loading") {

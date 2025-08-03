@@ -17,7 +17,9 @@ export function getChallenges(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const challenges = await ChallengeService.getChallenges();
+      const userId = request?.user?.id;
+
+      const challenges = await ChallengeService.getChallenges(userId);
       reply.status(200).send(challenges);
     }
   );

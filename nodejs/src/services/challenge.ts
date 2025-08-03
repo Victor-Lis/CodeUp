@@ -1,7 +1,8 @@
 import prisma from "@/config/prisma";
-import { NotFoundError } from "@/errors/not-found";
-import { UpdateChallengeType } from "@/schemas/challenge/update";
 import { CreateChallengeType } from "@/schemas/challenge/create";
+import { ChallengeType } from "@/schemas/challenge";
+import { FilebaseService } from "./firebase";
+import { NotFoundError } from "@/errors/not-found";
 
 export class ChallengeService {
   static async getNextChallengeNumber() {
@@ -12,55 +13,73 @@ export class ChallengeService {
     return lastChallenge ? lastChallenge.id + 1 : 1;
   }
 
-  static async createChallenge(
-    data: CreateChallengeType & { fileUrl: string }
-  ) {
-    const challenge = await prisma.challenge.create({
-      data: {
-        fileUrl: data.fileUrl,
+  static async getChallenges(userId: number) {
+    const challenges = await prisma.challenge.findMany({
+      include: {
+        runs: {
+          include: {
+            user: true,
+          },
+        },
+        testCases: true,
       },
+      take: 10,
+      orderBy: { createdAt: "desc" },
     });
-    return challenge;
-  }
 
-  static async getChallenges() {
-    const challenges = await prisma.challenge.findMany();
-    return challenges;
+    return challenges?.map((challenge: ChallengeType) => {
+      const run =
+        challenge?.runs?.find((r) => r.userId === userId) || null;
+      
+      return {
+        ...challenge,
+        run: run,
+      };
+    });
   }
 
   static async getChallengeById(id: number) {
     const challenge = await prisma.challenge.findUnique({
       where: { id },
+      include: { runs: true },
     });
-    if (!challenge) {
-      throw new NotFoundError();
-    }
     return challenge;
   }
 
-  static async updateChallenge(
-    id: number,
-    data: UpdateChallengeType & { fileUrl: string }
-  ) {
-    const challenge = await prisma.challenge.update({
-      where: { id },
+  static async createChallenge(data: CreateChallengeType) {
+    const challenge = await prisma.challenge.create({
       data: {
         fileUrl: data.fileUrl,
-      },
+      }
+    });
+    return challenge;
+  }
+
+  static async updateChallenge(id: number, data: Partial<CreateChallengeType>) {
+    const challenge = await prisma.challenge.update({
+      where: { id },
+      data,
     });
     return challenge;
   }
 
   static async deleteChallenge(id: number) {
-    const challenge = await prisma.challenge.findUnique({
+    const existingChallenge = await prisma.challenge.findUnique({
       where: { id },
     });
-    if (!challenge) {
-      throw new NotFoundError();
+
+    if (!existingChallenge) {
+      throw new NotFoundError("Challenge not found");
     }
-    await prisma.challenge.delete({
+
+    const fileDelete = await FilebaseService.deleteFile({
+      fileUrl: existingChallenge?.fileUrl,
+    });
+
+    const challenge = await prisma.challenge.delete({
       where: { id },
     });
-    return { message: "Challenge deleted successfully" };
+
+    return challenge;
   }
 }

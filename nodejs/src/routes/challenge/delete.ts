@@ -1,15 +1,12 @@
-import { UserService } from "@/services/user";
 import { FastifyTypedInstance } from "@/types/fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
-import { UpdateUserSchema } from "@/schemas/user/update";
 import { z } from "zod";
-import { ChallengeSchema } from "@/schemas/challenge";
 import { ChallengeService } from "@/services/challenge";
 
 export function deleteChallenge(app: FastifyTypedInstance) {
   app.withTypeProvider<ZodTypeProvider>().delete(
     "/:id",
-    {
+  {
       schema: {
         summary: "Delete a challenge",
         tags: ["Challenge"],
@@ -25,6 +22,7 @@ export function deleteChallenge(app: FastifyTypedInstance) {
     },
     async (request, reply) => {
       const { id } = request.params;
+
       await ChallengeService.deleteChallenge(id);
       reply.status(204).send({
         message: "Challenge deleted successfully",

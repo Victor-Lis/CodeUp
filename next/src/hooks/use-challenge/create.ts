@@ -8,6 +8,7 @@ export function useCreateChallenge() {
       const formData = new FormData();
       formData.append("file", data.file);
       
+      console.log("Form Data:", formData);
       const response = await api.post("/challenge", formData, {
         headers: {
           "Content-Type": "multipart/form-data",

@@ -34,7 +34,6 @@ export default function CreateChallengeForm({
   const { mutate: create, isPending: isCreating } = useCreateChallenge();
 
   async function onSubmit(values: z.infer<typeof challengeFormSchema>) {
-    console.log("Submitting challenge with values:", values);
     const file = values.file;
 
     create(
