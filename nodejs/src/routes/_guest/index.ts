@@ -1,6 +1,7 @@
 import { FastifyTypedInstance } from "@/types/fastify";
-// import { getItemById } from "../item/get";
+import { getRunById } from "../run/get-by-id";
 
 export async function guestRoutes(app: FastifyTypedInstance) {
   // app.register(getItemById);
+  app.register(getRunById, { prefix: "/run" });
 }

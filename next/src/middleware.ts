@@ -32,7 +32,7 @@ export async function middleware(req: NextRequest) {
   // console.log("Token:", token);
 
   if (!token && !publicRoutes.includes(pathname)) {
-    // console.log("No token found, redirecting to login");
+    console.log("No token found, redirecting to login");
     return NextResponse.redirect(new URL("/login", req.nextUrl.origin));
   }
 

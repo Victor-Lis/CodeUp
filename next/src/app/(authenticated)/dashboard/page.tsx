@@ -12,6 +12,10 @@ export default function ChallengesPage() {
     enabled: !!session?.user,
   });
 
+  const filteredChallenges = challenges?.filter(
+    (challenge) => challenge?.testCases?.length > 0
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -32,8 +36,8 @@ export default function ChallengesPage() {
       </div>
 
       <div className="space-y-6">
-        {challenges && challenges.length > 0 ? (
-          challenges.map((challenge: ChallengeType) => (
+        {filteredChallenges && filteredChallenges.length > 0 ? (
+          filteredChallenges.map((challenge: ChallengeType) => (
             <ChallengeCard key={challenge.id} challenge={challenge} />
           ))
         ) : (

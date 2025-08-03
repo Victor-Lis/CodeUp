@@ -19,25 +19,27 @@ type FirebaseServiceResponse = {
 };
 
 export class FilebaseService {
-  static async uploadImage({
+  static async uploadFile({
     path,
     file,
+    filename,
   }: {
     path: string;
     file: MultipartFile;
+    filename?: string;
   }): Promise<(FirebaseServiceResponse & { fileUrl: string }) | null> {
     try {
       const fileBuffer = await file.toBuffer();
-      const fileName = file.filename;
+      const fileName = filename ? file.filename : file.filename;
       const mimeType = file.mimetype;
 
       if (!fileBuffer || !fileName) {
         throw new FileUploadError("File data or name not provided.");
       }
 
-      const date = new Date();
-      const formattedDate = date.toISOString().replace(/[:.]/g, "-");
-      const filePath = `${path}/${fileName}-${formattedDate}`;
+      // const date = new Date();
+      // const formattedDate = date.toISOString().replace(/[:.]/g, "-");
+      const filePath = `${path}/${fileName}`;
 
       const storage = getStorage(firebase);
       const storageRef = ref(storage, filePath);
@@ -54,7 +56,7 @@ export class FilebaseService {
         contentType: mimeType,
       });
 
-      const uploadedImage = await new Promise((resolve, reject) => {
+      const uploadedFile = await new Promise((resolve, reject) => {
         uploadTask.on(
           "state_changed",
           (snapshot) => {
@@ -86,10 +88,10 @@ export class FilebaseService {
         );
       });
 
-      // console.log("Arquivo enviado com sucesso:", uploadedImage);
+      // console.log("Arquivo enviado com sucesso:", uploadedFile);
 
       return {
-        fileUrl: uploadedImage as string,
+        fileUrl: uploadedFile as string,
         success: true,
       };
     } catch (error) {
@@ -98,36 +100,36 @@ export class FilebaseService {
     }
   }
 
-  static async deleteImage({
+  static async deleteFile({
     fileUrl,
   }: {
     fileUrl: string;
   }): Promise<FirebaseServiceResponse> {
     if (!fileUrl) {
-      throw new NotFoundError("Imagem não encontrada");
+      throw new NotFoundError("Filem não encontrada");
     }
 
     const storage = getStorage(firebase);
-    const imageRef = ref(storage, fileUrl);
+    const fileRef = ref(storage, fileUrl);
     try {
-      const response = await deleteObject(imageRef)
+      const response = await deleteObject(fileRef)
         .then(() => {
-          // console.log("Imagem deletada com sucesso:", fileUrl);
+          // console.log("Filem deletada com sucesso:", fileUrl);
           return {
             success: true,
           };
         })
         .catch((error) => {
-          console.error("Erro ao deletar imagem:", error);
+          console.error("Erro ao deletar filem:", error);
           throw new FileDeleteError(
-            `Erro ao deletar imagem: ${
+            `Erro ao deletar filem: ${
               error instanceof Error ? error.message : "Unknown error"
             }`
           );
         });
       return response;
     } catch (error) {
-      console.error("Erro ao deletar imagem:", error);
+      console.error("Erro ao deletar filem:", error);
       throw error;
     }
   }

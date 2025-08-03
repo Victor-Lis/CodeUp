@@ -26,6 +26,8 @@ import { guestRoutes } from "./routes/_guest";
 import { userRoutes } from "./routes/user";
 import { challengeRoutes } from "./routes/challenge";
 import { uploadRoutes } from "./routes/uploadRoutes";
+import { runRoutes } from "./routes/run";
+import { testCaseRoutes } from "./routes/test-case";
 
 export const app = fastify();
 
@@ -51,7 +53,8 @@ app.register(fastifySwagger, {
   swagger: {
     info: {
       title: "CodeUp API",
-      description: "API do sistema CodeUp do <a href='https://www.linkedin.com/in/victor-lis-bronzo.'>Victor Lis Bronzo</a>.",
+      description:
+        "API do sistema CodeUp do <a href='https://www.linkedin.com/in/victor-lis-bronzo.'>Victor Lis Bronzo</a>.",
       version: "1.0.0",
     },
     securityDefinitions: {
@@ -95,12 +98,16 @@ app.addHook("onRequest", async (request) => {
 
 app.register(authRoutes, { prefix: "/auth" });
 app.register(guestRoutes);
-app.register(uploadRoutes);
+// app.register(uploadRoutes);
 
 app.register((app) => {
   app.addHook("preHandler", authenticate);
 
   app.register(challengeRoutes, { prefix: "/challenge" });
+  app.register(testCaseRoutes, { prefix: "/test-case" });
+
+  app.register(runRoutes, { prefix: "/run" });
+  
   app.register(userRoutes, { prefix: "/user" });
 });
 

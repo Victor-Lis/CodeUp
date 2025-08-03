@@ -13,7 +13,8 @@ if (!isset($_GET['runId'])) {
 }
 
 $runId = $_GET['runId'];
-$apiBaseUrl = getenv('API_BASE_URL');
+$apiBaseUrl = getenv('API_BASE_URL') . '/';
+// $apiBaseUrl = 'http://localhost:3030/'; // Defina o URL base da API aqui
 // echo "API Base URL: " . $apiBaseUrl . "</br>";
 
 if (!$apiBaseUrl) {
@@ -22,18 +23,22 @@ if (!$apiBaseUrl) {
     exit;
 }
 
-$apiUrl = $apiBaseUrl . "/api/run/get?id=" . urlencode($runId);
+$apiUrl = $apiBaseUrl . "run/" . urlencode($runId);
 // echo "API URL: " . $apiUrl . "</br>";
 $jsonData = @file_get_contents($apiUrl);
+
+// echo "JSON Data: " . $jsonData . "</br>";
 
 if ($jsonData === false) {
     http_response_code(500);
     exit;
 }
 
+// echo "JSON Data: " . $jsonData . "</br>";
+
 $data = json_decode($jsonData);
 $userCodeFilePath = 'temp_user_script.py';
-$userCodeUrl = $data->run->fileUrl;
+$userCodeUrl = $data->fileUrl;
 $userCode = @file_get_contents($userCodeUrl);
 
 if ($userCode === false) {
@@ -44,7 +49,7 @@ if ($userCode === false) {
 
 file_put_contents($userCodeFilePath, $userCode);
 
-$testCases = $data->run->challenge->testCases;
+$testCases = $data->challenge->testCases;
 $receivedOutputs = [];
 $allTestsPassed = false;
 $error = null;

@@ -25,6 +25,7 @@ export const nextAuthOptions: NextAuthOptions = {
       async authorize(credentials): Promise<User | null> {
         try {
           const signInUrl = `${process.env.API_URL}/auth/sign-in`;
+          console.log("[NextAuth] signInUrl", signInUrl);
           const response = await fetch(signInUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

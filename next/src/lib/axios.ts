@@ -15,6 +15,9 @@ api.interceptors.request.use(
       cachedSession = await getSession();
     }
 
+    // console.log("[Axios] Interceptor Request");
+    // console.log("Cached Session:", cachedSession);
+
     if (cachedSession?.accessToken) {
       config.headers.Authorization = `Bearer ${cachedSession.accessToken}`;
     }
