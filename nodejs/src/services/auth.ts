@@ -1,6 +1,7 @@
 import { env } from "@/config/env";
 import prisma from "@/config/prisma";
 import { InvalidCredentials } from "@/errors/invalid-credentials";
+import { SignUpType } from "@/schemas/auth/sign-up";
 import { UserType } from "@/schemas/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -42,5 +43,17 @@ export class AuthService {
         expiresIn: "30d",
       }
     );
+  }
+
+  static async createUser({ name, credential, password }: SignUpType) {
+    const hashedPassword = await this.hashPassword(password);
+    return await prisma.user.create({
+      data: {
+        name,
+        username: credential,
+        email: credential,
+        password: hashedPassword,       
+      },
+    });
   }
 }

@@ -17,8 +17,8 @@ export function signOut(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      reply.clearCookie("auth-token").status(204).send({
-        message: "Operator signed out successfully",
+      reply.status(204).send({
+        message: "Successfully signed out",
       });
     }
   );

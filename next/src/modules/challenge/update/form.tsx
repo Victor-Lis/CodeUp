@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 
-import fileUploadHandler from "@/lib/firebase/file";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";

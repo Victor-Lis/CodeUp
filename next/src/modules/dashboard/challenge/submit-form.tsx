@@ -7,12 +7,10 @@ import { Button } from "@/components/ui/button";
 import { useCreateRun } from "@/hooks/use-run/create";
 import { useUpdateRun } from "@/hooks/use-run/update";
 
-import fileUploadHandler from "@/lib/firebase/file";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import InputFile from "@/components/form/input-file";
 import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
-// import fileUploadHandler from "@/lib/firebase/file";
 
 const runFormSchema = z.object({
   file: z.instanceof(File),

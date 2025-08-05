@@ -1,4 +1,4 @@
-import { AuthSchema } from "@/schemas/auth";
+import { SignInSchema } from "@/schemas/auth/sign-in";
 import { AuthService } from "@/services/auth";
 
 import { FastifyTypedInstance } from "@/types/fastify";
@@ -10,9 +10,9 @@ export function verifyPassword(app: FastifyTypedInstance) {
     "/verify-password",
     {
       schema: {
-        summary: "Verify an operator",
+        summary: "Verify an user",
         tags: ["Auth"],
-        body: AuthSchema,
+        body: SignInSchema,
         response: {
           200: z.object({
             match: z.boolean(),

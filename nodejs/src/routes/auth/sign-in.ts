@@ -1,5 +1,5 @@
 import { InvalidCredentials } from "@/errors/invalid-credentials";
-import { AuthSchema } from "@/schemas/auth";
+import { SignInSchema } from "@/schemas/auth/sign-in";
 import { AuthService } from "@/services/auth";
 
 import { FastifyTypedInstance } from "@/types/fastify";
@@ -10,16 +10,16 @@ import { z } from "zod";
 //       username: data.username,
 //       name: data.name,
 //       email: data.email,
-//       type: data.operatorType,
+//       type: data.userType,
 
 export function signIn(app: FastifyTypedInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
     "/sign-in",
     {
       schema: {
-        summary: "Sign in an operator",
+        summary: "Sign in an user",
         tags: ["Auth"],
-        body: AuthSchema,
+        body: SignInSchema,
         response: {
           200: z.object({
             token: z.string(),
@@ -33,13 +33,13 @@ export function signIn(app: FastifyTypedInstance) {
       // console.log("[Auth] Sign in attempt with credential:", credential);
       // console.log("[Auth] Sign in attempt with password:", password ? "******" : "not provided");
 
-      const operator = await AuthService.verifyUser(credential, password);
+      const user = await AuthService.verifyUser(credential, password);
 
-      if (!operator) {
+      if (!user) {
         throw new InvalidCredentials();
       }
 
-      const token = await AuthService.login(operator);
+      const token = await AuthService.login(user);
 
       console.log("🔑 Token gerado:", token);
 
