@@ -61,35 +61,33 @@ services:
       - 8.8.4.4
     build:
       context: ./next
-      target: dev
+      target: production
       args:
         NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-        DATABASE_URL: ${DATABASE_URL}
-        NEXT_PUBLIC_FIREBASE_APIKEY: ${NEXT_PUBLIC_FIREBASE_APIKEY}
-        NEXT_PUBLIC_FIREBASE_AUTHDOMAIN: ${NEXT_PUBLIC_FIREBASE_AUTHDOMAIN}
-        NEXT_PUBLIC_FIREBASE_PROJECTID: ${NEXT_PUBLIC_FIREBASE_PROJECTID}
-        NEXT_PUBLIC_FIREBASE_STORAGEBUCKET: ${NEXT_PUBLIC_FIREBASE_STORAGEBUCKET}
-        NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID: ${NEXT_PUBLIC_FIREBASE_MESSAGINGSENDERID}
-        NEXT_PUBLIC_FIREBASE_APPID: ${NEXT_PUBLIC_FIREBASE_APPID}
-        NEXT_PUBLIC_FIREBASE_MEASUREMENTID: ${NEXT_PUBLIC_FIREBASE_MEASUREMENTID}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        API_URL: ${API_URL}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
     restart: always
     env_file:
       - ./next/.env
-    environment:
-      WATCHPACK_POLLING: "true"
+    # environment:
+      # WATCHPACK_POLLING: "true"
     ports:
       - "3000:3000"
-    volumes:
-      - ./next:/app
-      - /app/node_modules
-      - /app/.next
-      - ./next/package.json:/app/package.json
+    # volumes:
+      # - ./next/.env:/app/.env
+      # - ./next:/app
+      # - /app/node_modules
+      # - /app/.next
+      # - ./next/package.json:/app/package.json
     depends_on:
       - codeup-php
       - codeup-nodejs
     networks:
       - local-network
+    command: sh -c "pnpm start"
 
   codeup-nodejs:
     container_name: codeup-nodejs
@@ -98,23 +96,23 @@ services:
       - 8.8.4.4
     build:
       context: ./nodejs
-      target: dev
+      target: runner
     env_file:
       - ./nodejs/.env # Carrega variáveis deste arquivo
     depends_on:
       - codeup-postgres-db
     environment:
       - CHOKIDAR_USEPOLLING=1
-    volumes:
-      - ./nodejs:/app
-      - /app/node_modules
-      - ./nodejs/package.json:/app/package.json
+    # volumes:
+      # - ./nodejs:/app
+      # - /app/node_modules
+      # - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
     restart: always
     networks:
       - local-network
-    command: sh -c "pnpm migrate dev && pnpm dev"
+    command: sh -c "pnpm migrate dev && pnpm start"
 
   # codeup-prisma-studio:
   #   profiles: [dev]

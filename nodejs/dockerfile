@@ -45,7 +45,7 @@ RUN pnpm generate
 USER appuser
 
 EXPOSE 3030
-CMD ["pnpm", "start"]
+# CMD ["pnpm", "start"]
 
 # ==============================================================================
 # Estágio de Desenvolvimento
