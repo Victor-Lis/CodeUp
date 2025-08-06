@@ -1,13 +1,12 @@
 services:
   codeup-postgres-db:
-    profiles: [dev, prod]
     image: bitnami/postgresql:latest
     container_name: codeup-postgres-db
     ports:
       - "5433:5432"
     restart: unless-stopped
     env_file:
-      - .env # Carrega variáveis deste arquivo
+      - .env
     environment:
       - POSTGRES_USER=${DATABASE_USER:-docker}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-docker}
@@ -18,7 +17,6 @@ services:
       - local-network
 
   codeup-pg-admin:
-    profiles: [dev, prod]
     image: dpage/pgadmin4:latest
     container_name: codeup-pg-admin
     depends_on:
@@ -30,18 +28,17 @@ services:
       - 8081:80
     restart: unless-stopped
     env_file:
-      - .env # Carrega variáveis deste arquivo
+      - .env
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
       - local-network
 
   codeup-php:
-    profiles: [dev, prod]
     container_name: codeup-php
     build:
-      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
-      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
+      context: . 
+      dockerfile: ./php/dockerfile
     ports:
       - "8000:80"
     volumes:
@@ -50,7 +47,7 @@ services:
       - local-network
     depends_on:
       - codeup-postgres-db
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./php/.env
 
@@ -69,19 +66,11 @@ services:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
         API_URL: ${API_URL}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
-    restart: always
+    restart: unless-stopped
     env_file:
       - ./next/.env
-    # environment:
-      # WATCHPACK_POLLING: "true"
     ports:
       - "3000:3000"
-    # volumes:
-      # - ./next/.env:/app/.env
-      # - ./next:/app
-      # - /app/node_modules
-      # - /app/.next
-      # - ./next/package.json:/app/package.json
     depends_on:
       - codeup-php
       - codeup-nodejs
@@ -98,73 +87,15 @@ services:
       context: ./nodejs
       target: runner
     env_file:
-      - ./nodejs/.env # Carrega variáveis deste arquivo
+      - ./nodejs/.env
     depends_on:
       - codeup-postgres-db
-    environment:
-      - CHOKIDAR_USEPOLLING=1
-    # volumes:
-      # - ./nodejs:/app
-      # - /app/node_modules
-      # - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
-    restart: always
+    restart: unless-stopped
     networks:
       - local-network
     command: sh -c "pnpm migrate dev && pnpm start"
-
-  # codeup-prisma-studio:
-  #   profiles: [dev]
-  #   container_name: codeup-prisma-studio
-  #   dns:
-  #     - 8.8.8.8
-  #     - 8.8.4.4
-  #   build:
-  #     context: ./nodejs
-  #     target: prisma-studio
-  #   env_file:
-  #     - ./nodejs/.env # Carrega variáveis deste arquivo
-  #   depends_on:
-  #     - codeup-postgres-db
-  #   # environment:
-  #   # - NODE_ENV=production
-  #   ports:
-  #     - "5555:5555"
-  #   restart: always
-  #   networks:
-  #     - local-network
-  #   command: sh -c "pnpm migrate dev && pnpm studio"
-
-  codeup-firebase-emulator:
-    profiles: [dev]
-    image: spine3/firebase-emulator
-    container_name: codeup-firebase-emulator
-    environment:
-      - GCP_PROJECT=codeup # Substitua pelo seu projeto do GCP
-      - ENABLE_UI=true
-    ports:
-      - "9000:9000" # Realtime Database
-      - "8080:8080" # Firestore
-      - "4000:4000" # Painel do Emulator Suite
-      - "9099:9099" # Authentication
-      - "8085:8085" # Cloud Firestore Emulator UI (se aplicável)
-      - "5001:5001" # Cloud Functions
-      - "9199:9199" # Storage
-    stdin_open: true
-    tty: true
-    command: >
-      /bin/sh -c "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data --only auth,storage"
-    volumes:
-      - ./firebase-files:/firebase/baseline-data
-      - ./entrypoint.sh:/entrypoint.sh
-    restart: always
-    networks:
-      - local-network
-
-networks:
-  local-network:
-    driver: bridge
 
 volumes:
   db_volume:

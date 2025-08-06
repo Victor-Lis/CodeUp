@@ -1,0 +1,172 @@
+services:
+  codeup-postgres-db:
+    image: bitnami/postgresql:latest
+    container_name: codeup-postgres-db
+    ports:
+      - "5433:5432"
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DATABASE_USER:-docker}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-docker}
+      - POSTGRES_DB=codeup
+    volumes:
+      - db_volume:/bitnami/postgresql
+    networks:
+      - local-network
+
+  codeup-pg-admin:
+    image: dpage/pgadmin4:latest
+    container_name: codeup-pg-admin
+    depends_on:
+      - codeup-postgres-db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-user@localhost.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    ports:
+      - 8081:80
+    restart: unless-stopped
+    env_file:
+      - .env # Carrega variáveis deste arquivo
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - local-network
+
+  codeup-php:
+    container_name: codeup-php
+    build:
+      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
+      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ./php:/var/www/html
+    networks:
+      - local-network
+    depends_on:
+      - codeup-postgres-db
+    restart: always
+    env_file:
+      - ./php/.env
+
+  codeup-next:
+    container_name: codeup-next
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: ./next
+      target: dev
+      args:
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        API_URL: ${API_URL}
+        NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
+    environment:
+      WATCHPACK_POLLING: "true"
+    env_file:
+      - ./next/.env
+    ports:
+      - "3001:3001"
+    volumes:
+    - ./next/.env:/app/.env
+    - ./next:/app
+    - /app/node_modules
+    - /app/.next
+    - ./next/package.json:/app/package.json
+    depends_on:
+      - codeup-php
+      - codeup-nodejs
+    networks:
+      - local-network
+    restart: always
+    command: pnpm dev
+
+  codeup-nodejs:
+    container_name: codeup-nodejs
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: ./nodejs
+      target: dev
+    env_file:
+      - ./nodejs/.env # Carrega variáveis deste arquivo
+    depends_on:
+      - codeup-postgres-db
+    environment:
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+    - ./nodejs:/app
+    - /app/node_modules
+    - ./nodejs/package.json:/app/package.json
+    ports:
+      - "3030:3030"
+    restart: always
+    networks:
+      - local-network
+    command: sh -c "pnpm migrate dev && pnpm dev"
+
+  codeup-prisma-studio:
+    container_name: codeup-prisma-studio
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: ./nodejs
+      target: prisma-studio
+    env_file:
+      - ./nodejs/.env # Carrega variáveis deste arquivo
+    depends_on:
+      - codeup-postgres-db
+    # environment:
+    # - NODE_ENV=production
+    ports:
+      - "5555:5555"
+    restart: always
+    networks:
+      - local-network
+    command: sh -c "pnpm migrate dev && pnpm studio"
+
+  codeup-firebase-emulator:
+    profiles: [dev]
+    image: spine3/firebase-emulator
+    container_name: codeup-firebase-emulator
+    environment:
+      - GCP_PROJECT=codeup # Substitua pelo seu projeto do GCP
+      - ENABLE_UI=true
+    ports:
+      - "9000:9000" # Realtime Database
+      - "8080:8080" # Firestore
+      - "4000:4000" # Painel do Emulator Suite
+      - "9099:9099" # Authentication
+      - "8085:8085" # Cloud Firestore Emulator UI (se aplicável)
+      - "5001:5001" # Cloud Functions
+      - "9199:9199" # Storage
+    stdin_open: true
+    tty: true
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data",
+      ]
+    volumes:
+      - ./firebase-data:/firebase/baseline-data
+      - ./entrypoint.sh:/entrypoint.sh
+    restart: always
+    networks:
+      - local-network
+
+volumes:
+  db_volume:
+  pgadmin_data:
+  php_data:
+
+networks:
+  local-network:
+    driver: bridge
