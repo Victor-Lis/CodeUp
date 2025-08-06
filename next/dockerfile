@@ -22,7 +22,7 @@
   # Copia o resto do código (será sobreposto pelo volume do docker-compose)
   COPY . .
   # Expõe a porta e define o comando padrão para desenvolvimento
-  EXPOSE 3000
+  EXPOSE 3001
   CMD ["pnpm", "dev"]
 
   # ==============================================================================
