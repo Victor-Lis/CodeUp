@@ -54,40 +54,40 @@ services:
     env_file:
       - ./php/.env
 
-  codeup-next:
-    container_name: codeup-next
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    build:
-      context: ./next
-      target: production
-      args:
-        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-        NEXTAUTH_URL: ${NEXTAUTH_URL}
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        API_URL: ${API_URL}
-        NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
-    restart: always
-    env_file:
-      - ./next/.env
-    # environment:
-      # WATCHPACK_POLLING: "true"
-    ports:
-      - "3000:3000"
-    # volumes:
-      # - ./next/.env:/app/.env
-      # - ./next:/app
-      # - /app/node_modules
-      # - /app/.next
-      # - ./next/package.json:/app/package.json
-    depends_on:
-      - codeup-php
-      - codeup-nodejs
-    networks:
-      - local-network
-    command: sh -c "pnpm start"
+  # codeup-next:
+  #   container_name: codeup-next
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   build:
+  #     context: ./next
+  #     target: production
+  #     args:
+  #       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+  #       NEXTAUTH_URL: ${NEXTAUTH_URL}
+  #       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+  #       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+  #       API_URL: ${API_URL}
+  #       NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
+  #   restart: always
+  #   env_file:
+  #     - ./next/.env
+  #   # environment:
+  #   # WATCHPACK_POLLING: "true"
+  #   ports:
+  #     - "3000:3000"
+  #   # volumes:
+  #   # - ./next/.env:/app/.env
+  #   # - ./next:/app
+  #   # - /app/node_modules
+  #   # - /app/.next
+  #   # - ./next/package.json:/app/package.json
+  #   depends_on:
+  #     - codeup-php
+  #     - codeup-nodejs
+  #   networks:
+  #     - local-network
+  #   command: sh -c "pnpm start"
 
   codeup-nodejs:
     container_name: codeup-nodejs
@@ -104,9 +104,9 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=1
     # volumes:
-      # - ./nodejs:/app
-      # - /app/node_modules
-      # - ./nodejs/package.json:/app/package.json
+    # - ./nodejs:/app
+    # - /app/node_modules
+    # - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
     restart: always
@@ -153,20 +153,24 @@ services:
       - "9199:9199" # Storage
     stdin_open: true
     tty: true
-    command: >
-      /bin/sh -c "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data --only auth,storage"
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data",
+      ]
     volumes:
-      - ./firebase-files:/firebase/baseline-data
+      - ./firebase-data:/firebase/baseline-data
       - ./entrypoint.sh:/entrypoint.sh
     restart: always
     networks:
       - local-network
 
-networks:
-  local-network:
-    driver: bridge
-
 volumes:
   db_volume:
   pgadmin_data:
   php_data:
+
+networks:
+  local-network:
+    driver: bridge
