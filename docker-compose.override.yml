@@ -28,7 +28,7 @@ services:
       - 8081:80
     restart: unless-stopped
     env_file:
-      - .env # Carrega variáveis deste arquivo
+      - .env
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
@@ -37,8 +37,7 @@ services:
   codeup-php:
     container_name: codeup-php
     build:
-      context: . # <-- MUDANÇA: O contexto agora é o diretório raiz
-      dockerfile: ./php/dockerfile # <-- MUDANÇA: Caminho completo para o Dockerfile
+      context: ./php
     ports:
       - "8000:80"
     volumes:
@@ -73,19 +72,17 @@ services:
     ports:
       - "3001:3001"
     volumes:
-    - ./next/.env:/app/.env
     - ./next:/app
     - /app/node_modules
     - /app/.next
-    - ./next/package.json:/app/package.json
     depends_on:
       - codeup-php
       - codeup-nodejs
     networks:
       - local-network
     restart: always
-    command: pnpm dev
-
+    command: sh -c "pnpm dev"
+    
   codeup-nodejs:
     container_name: codeup-nodejs
     dns:
@@ -95,14 +92,14 @@ services:
       context: ./nodejs
       target: dev
     env_file:
-      - ./nodejs/.env # Carrega variáveis deste arquivo
+      - ./nodejs/.env
     depends_on:
       - codeup-postgres-db
     environment:
       - CHOKIDAR_USEPOLLING=1
     volumes:
     - ./nodejs:/app
-    - /app/node_modules
+    # - /app/node_modules
     - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
@@ -111,33 +108,30 @@ services:
       - local-network
     command: sh -c "pnpm migrate dev && pnpm dev"
 
-  codeup-prisma-studio:
-    container_name: codeup-prisma-studio
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
-    build:
-      context: ./nodejs
-      target: prisma-studio
-    env_file:
-      - ./nodejs/.env # Carrega variáveis deste arquivo
-    depends_on:
-      - codeup-postgres-db
-    # environment:
-    # - NODE_ENV=production
-    ports:
-      - "5555:5555"
-    restart: always
-    networks:
-      - local-network
-    command: sh -c "pnpm migrate dev && pnpm studio"
+  # codeup-prisma-studio:
+  #   container_name: codeup-prisma-studio
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   build:
+  #     context: ./nodejs
+  #     target: prisma-studio
+  #   env_file:
+  #     - ./nodejs/.env
+  #   depends_on:
+  #     - codeup-postgres-db
+  #   ports:
+  #     - "5555:5555"
+  #   restart: always
+  #   networks:
+  #     - local-network
+  #   command: sh -c "pnpm migrate dev && pnpm studio"
 
   codeup-firebase-emulator:
-    profiles: [dev]
     image: spine3/firebase-emulator
     container_name: codeup-firebase-emulator
     environment:
-      - GCP_PROJECT=codeup # Substitua pelo seu projeto do GCP
+      - GCP_PROJECT=codeup
       - ENABLE_UI=true
     ports:
       - "9000:9000" # Realtime Database
@@ -153,11 +147,11 @@ services:
       [
         "/bin/sh",
         "-c",
-        "/entrypoint.sh && firebase emulators:start --import=/firebase/baseline-data",
+        "/firebase.sh && firebase emulators:start --import=/firebase/baseline-data",
       ]
     volumes:
       - ./firebase-data:/firebase/baseline-data
-      - ./entrypoint.sh:/entrypoint.sh
+      - ./firebase.sh:/entrypoint.sh
     restart: always
     networks:
       - local-network

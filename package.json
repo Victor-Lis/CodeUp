@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "docker-compose:dev": "docker compose -f docker-compose.override.yml up -d",
-    "docker-compose:prod": "docker compose -f docker-compose.yml up -d --build"
+    "docker-compose:dev": "docker compose -f docker-compose.override.yml up -d --force-recreate --build",
+    "docker-compose:prod": "docker compose -f docker-compose.yml up -d --build",
+    "docker-compose:down": "docker compose down -v"
   },
   "keywords": [],
   "author": "",
