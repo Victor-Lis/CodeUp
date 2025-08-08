@@ -19,10 +19,10 @@ importers:
         version: 5.4.0
       fastify-type-provider-zod:
         specifier: ^5.0.2
-        version: 5.0.2(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@4.0.10)
+        version: 5.0.3(@fastify/swagger@9.5.1)(fastify@5.4.0)(openapi-types@12.1.3)(zod@4.0.15)
       zod:
         specifier: ^4.0.10
-        version: 4.0.10
+        version: 4.0.15
 
 packages:
 
@@ -182,11 +182,12 @@ packages:
   fastify-plugin@5.0.1:
     resolution: {integrity: sha512-HCxs+YnRaWzCl+cWRYFnHmeRFyR5GVnJTAaCJQiYzQSDwK9MgJdyAsuL3nh0EWRCYMgQ5MeziymvmAhUHYHDUQ==}
 
-  fastify-type-provider-zod@5.0.2:
-    resolution: {integrity: sha512-myolKCxze2rx25Ia88Erb4TZpFIUWyCUqMDgNqE6KQnXoERXwMCPuwfj/1zKkVBlu5dvLo1c/H7GneZUhOWXiw==}
+  fastify-type-provider-zod@5.0.3:
+    resolution: {integrity: sha512-h+/SL9qWD+J5OS4UZ86YnbQA/gaeTqKXqUDbYFm3NZYAhjVVqALCp/UBHFXnH/lv+TpBFyv8uKQ/U1692j0N1g==}
     peerDependencies:
       '@fastify/swagger': '>=9.5.1'
       fastify: ^5.0.0
+      openapi-types: ^12.1.3
       zod: '>=3.25.67'
 
   fastify@5.4.0:
@@ -406,13 +407,13 @@ packages:
     resolution: {integrity: sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ==}
     engines: {node: '>=12'}
 
-  yaml@2.8.0:
-    resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
+  yaml@2.8.1:
+    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
-  zod@4.0.10:
-    resolution: {integrity: sha512-3vB+UU3/VmLL2lvwcY/4RV2i9z/YU0DTV/tDuYjrwmx5WeJ7hwy+rGEEx8glHp6Yxw7ibRbKSaIFBgReRPe5KA==}
+  zod@4.0.15:
+    resolution: {integrity: sha512-2IVHb9h4Mt6+UXkyMs0XbfICUh1eUrlJJAOupBHUhLRnKkruawyDddYRCs0Eizt900ntIMk9/4RksYl+FgSpcQ==}
 
 snapshots:
 
@@ -464,7 +465,7 @@ snapshots:
       fastify-plugin: 5.0.1
       openapi-types: 12.1.3
       rfdc: 1.4.1
-      yaml: 2.8.0
+      yaml: 2.8.1
 
   '@fastify/swagger@9.5.1':
     dependencies:
@@ -472,7 +473,7 @@ snapshots:
       json-schema-resolver: 3.0.0
       openapi-types: 12.1.3
       rfdc: 1.4.1
-      yaml: 2.8.0
+      yaml: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -580,12 +581,13 @@ snapshots:
 
   fastify-plugin@5.0.1: {}
 
-  fastify-type-provider-zod@5.0.2(@fastify/swagger@9.5.1)(fastify@5.4.0)(zod@4.0.10):
+  fastify-type-provider-zod@5.0.3(@fastify/swagger@9.5.1)(fastify@5.4.0)(openapi-types@12.1.3)(zod@4.0.15):
     dependencies:
       '@fastify/error': 4.2.0
       '@fastify/swagger': 9.5.1
       fastify: 5.4.0
-      zod: 4.0.10
+      openapi-types: 12.1.3
+      zod: 4.0.15
 
   fastify@5.4.0:
     dependencies:
@@ -806,6 +808,6 @@ snapshots:
       string-width: 5.1.2
       strip-ansi: 7.1.0
 
-  yaml@2.8.0: {}
+  yaml@2.8.1: {}
 
-  zod@4.0.10: {}
+  zod@4.0.15: {}

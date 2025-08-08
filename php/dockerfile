@@ -12,7 +12,7 @@ RUN apt-get update && \
 RUN docker-php-ext-install pdo
 
 # 4. Copiar arquivos da aplicação
-COPY ./php/ /var/www/html/
+COPY ./ /var/www/html/
 
 # 5. Configurar permissões apropriadas
 RUN chown -R www-data:www-data /var/www/html/

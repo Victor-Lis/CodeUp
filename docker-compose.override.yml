@@ -46,7 +46,7 @@ services:
       - local-network
     depends_on:
       - codeup-postgres-db
-    restart: unless-stopped
+    restart: always
     env_file:
       - ./php/.env
 
@@ -57,7 +57,7 @@ services:
       - 8.8.4.4
     build:
       context: ./next
-      target: production
+      target: dev
       args:
         NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
         NEXTAUTH_URL: ${NEXTAUTH_URL}
@@ -65,18 +65,24 @@ services:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
         API_URL: ${API_URL}
         NEXT_PUBLIC_VALIDATOR_API_URL: ${NEXT_PUBLIC_VALIDATOR_API_URL}
-    restart: unless-stopped
+    environment:
+      WATCHPACK_POLLING: "true"
     env_file:
       - ./next/.env
     ports:
-      - "3000:3000"
+      - "3001:3001"
+    volumes:
+    - ./next:/app
+    - /app/node_modules
+    - /app/.next
     depends_on:
       - codeup-php
       - codeup-nodejs
     networks:
       - local-network
-    command: sh -c "pnpm start"
-
+    restart: always
+    command: sh -c "pnpm dev"
+    
   codeup-nodejs:
     container_name: codeup-nodejs
     dns:
@@ -84,17 +90,71 @@ services:
       - 8.8.4.4
     build:
       context: ./nodejs
-      target: runner
+      target: dev
     env_file:
       - ./nodejs/.env
     depends_on:
       - codeup-postgres-db
+    environment:
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+    - ./nodejs:/app
+    # - /app/node_modules
+    - ./nodejs/package.json:/app/package.json
     ports:
       - "3030:3030"
-    restart: unless-stopped
+    restart: always
     networks:
       - local-network
-    command: sh -c "pnpm migrate dev && pnpm start"
+    command: sh -c "pnpm migrate dev && pnpm dev"
+
+  # codeup-prisma-studio:
+  #   container_name: codeup-prisma-studio
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   build:
+  #     context: ./nodejs
+  #     target: prisma-studio
+  #   env_file:
+  #     - ./nodejs/.env
+  #   depends_on:
+  #     - codeup-postgres-db
+  #   ports:
+  #     - "5555:5555"
+  #   restart: always
+  #   networks:
+  #     - local-network
+  #   command: sh -c "pnpm migrate dev && pnpm studio"
+
+  codeup-firebase-emulator:
+    image: spine3/firebase-emulator
+    container_name: codeup-firebase-emulator
+    environment:
+      - GCP_PROJECT=codeup
+      - ENABLE_UI=true
+    ports:
+      - "9000:9000" # Realtime Database
+      - "8080:8080" # Firestore
+      - "4000:4000" # Painel do Emulator Suite
+      - "9099:9099" # Authentication
+      - "8085:8085" # Cloud Firestore Emulator UI (se aplicável)
+      - "5001:5001" # Cloud Functions
+      - "9199:9199" # Storage
+    stdin_open: true
+    tty: true
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        "/firebase.sh && firebase emulators:start --import=/firebase/baseline-data",
+      ]
+    volumes:
+      - ./firebase-data:/firebase/baseline-data
+      - ./firebase.sh:/entrypoint.sh
+    restart: always
+    networks:
+      - local-network
 
 volumes:
   db_volume:
