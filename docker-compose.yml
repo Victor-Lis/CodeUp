@@ -75,7 +75,7 @@ services:
       - codeup-nodejs
     networks:
       - local-network
-    command: sh -c "pnpm migrate deploy && pnpm start"
+    command: sh -c "pnpm start"
 
   codeup-nodejs:
     container_name: codeup-nodejs
