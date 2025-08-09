@@ -388,7 +388,7 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 
 ## 👥 Equipe
 
-Desenvolvido com ❤️ por desenvolvedores apaixonados por educação e tecnologia.
+Desenvolvido com ❤️ por um desenvolvedor apaixonado por educação e tecnologia.
 
 ---
 
